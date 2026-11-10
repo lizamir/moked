@@ -5,17 +5,17 @@
   "type": "module",
   "license": "MIT",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "ask": "tsx src/interfaces/cli.ts",
+    "ask": "tsx --env-file-if-exists=.env src/interfaces/cli.ts",
     "mcp": "tsx src/interfaces/mcp-server.ts",
-    "eval:retrieval": "tsx evals/retrieval.ts",
+    "eval:retrieval": "tsx --env-file-if-exists=.env evals/retrieval.ts",
     "test": "tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit && tsc --noEmit -p site",
     "build:site": "tsx scripts/build-site.ts",
-    "chat": "tsx src/interfaces/cli.ts",
-    "eval:agent": "tsx evals/agent.ts"
+    "chat": "tsx --env-file-if-exists=.env src/interfaces/cli.ts",
+    "eval:agent": "tsx --env-file-if-exists=.env evals/agent.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.7.0",

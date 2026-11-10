@@ -116,10 +116,10 @@ npm run eval:retrieval   # knowledge-base search quality
 
 The first run downloads the embedding model (about 120 MB) and caches it.
 
-To talk to the agent you need a Claude API key:
+To talk to the agent you need a Claude API key. Copy `.env.example` to `.env` and put the key there (`.env` is never committed):
 
 ```bash
-export ANTHROPIC_API_KEY=...
+cp .env.example .env     # then edit .env and set ANTHROPIC_API_KEY
 npm run chat             # interactive conversation in the terminal
 npm run eval:agent       # the 20 scenarios, end to end
 ```
