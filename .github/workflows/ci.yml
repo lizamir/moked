@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Embedding model weights (~120 MB) and computed vectors.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            node_modules/@huggingface/transformers/.cache
+            .cache
+          key: embeddings-${{ hashFiles('package-lock.json', 'data/kb/**') }}
+          restore-keys: embeddings-
+      - run: npm run typecheck
+      - run: npm test
+      - name: Retrieval eval (offline, gates on hybrid Recall@5)
+        run: npm run eval:retrieval
+      - name: Publish retrieval report
+        if: always()
+        run: cat evals/results/retrieval.md >> "$GITHUB_STEP_SUMMARY"
+
+  answer-eval:
+    # Calls the Claude API, so it only runs where the secret is available (not on fork PRs).
+    if: github.event_name == 'push'
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Answer eval (20 questions, gates on pass rate)
+        if: env.ANTHROPIC_API_KEY != ''
+        run: npm run eval:answers
+      - name: Publish answer report
+        if: always() && env.ANTHROPIC_API_KEY != ''
+        run: cat evals/results/answers.md >> "$GITHUB_STEP_SUMMARY"
