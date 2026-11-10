@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מוקד: עוזר AI בעברית שעונה רק ממה שקרא</title>
+<meta name="description" content="מוקד הוא עוזר בעברית שעונה על שאלות על בינה מלאכותית מתוך מדריך, מציין מקור לכל משפט ואומר לא יודע כשאין תשובה. הסבר פשוט והדגמה חיה של החיפוש.">
+<meta property="og:title" content="מוקד: עוזר AI בעברית שעונה רק ממה שקרא">
+<meta property="og:description" content="הסבר פשוט והדגמה חיה: איך שאלה בעברית הופכת לתשובה עם מקורות.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #fbf7f5;
+  --card: #ffffff;
+  --ink: #24161d;
+  --ink-soft: #5d4a53;
+  --deep: #2c1520;
+  --accent: #a3345a;
+  --accent-fill: #c2456f;
+  --accent-soft: #f4c3d0;
+  --accent-wash: #fbe9ee;
+  --on-deep: #f7ecef;
+  --on-deep-accent: #f3b3c7;
+  --line: #ead9de;
+  --good: #1f6b4a;
+  --good-wash: #e3f3ea;
+  --warn: #8a4b00;
+  --warn-wash: #fff0d6;
+  --grid: rgba(194, 69, 111, 0.09);
+  --radius: 26px;
+  --shadow: 0 18px 50px -28px rgba(44, 21, 32, 0.35);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background-color: var(--paper);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 80px 80px;
+  color: var(--ink);
+  font-family: Assistant, system-ui, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+h1, h2, h3 { font-family: Rubik, system-ui, sans-serif; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.9rem); font-weight: 800; }
+h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; }
+h3 { font-size: 1.2rem; font-weight: 700; }
+p { margin: 0; }
+a { color: var(--accent); }
+code { font-family: ui-monospace, Menlo, monospace; font-size: 0.85em; }
+:focus-visible { outline: 3px solid var(--accent-fill); outline-offset: 3px; border-radius: 8px; }
+.wrap { max-inline-size: 1080px; margin-inline: auto; padding-inline: 20px; }
+.skip { position: absolute; inset-inline-start: -999px; }
+.skip:focus { inset-inline-start: 16px; inset-block-start: 16px; background: var(--card); padding: 10px 16px; z-index: 10; }
+
+header.top { padding-block: 18px; }
+.top__row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.logo { font-family: Rubik, sans-serif; font-weight: 800; font-size: 1.35rem; color: var(--ink); text-decoration: none; }
+.logo span { color: var(--accent); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-block-size: 48px; padding: 10px 24px; border-radius: 999px;
+  font: 700 1.05rem Assistant, sans-serif; text-decoration: none; cursor: pointer;
+  border: 2px solid var(--ink); background: var(--ink); color: #fff;
+  box-shadow: 0 6px 0 -1px var(--accent-soft);
+  transition: transform 0.15s ease;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn--ghost { background: transparent; color: var(--ink); box-shadow: none; }
+
+.hero { padding-block: 48px 64px; }
+.hero h1 mark {
+  background: var(--accent-soft); color: inherit; padding: 0 0.18em; border-radius: 10px;
+  display: inline-block; transform: rotate(-1.5deg);
+}
+.hero__lead { max-inline-size: 60ch; margin-block: 22px 28px; font-size: 1.25rem; color: var(--ink-soft); }
+.hero__actions { display: flex; flex-wrap: wrap; gap: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-block-start: 34px; padding: 0; list-style: none; }
+.chips li { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 16px; font-weight: 600; }
+.chips b { color: var(--accent); font-family: Rubik, sans-serif; }
+
+section { padding-block: 56px; }
+.lead { max-inline-size: 62ch; margin-block: 14px 30px; color: var(--ink-soft); }
+.cards { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow); }
+.card h3 { margin-block-end: 8px; }
+.card p + p { margin-block-start: 10px; }
+.card--bad { border-inline-start: 6px solid var(--accent-soft); }
+.card--good { border-inline-start: 6px solid var(--good); }
+.status { display: inline-block; margin-block-start: 12px; font-size: 0.92rem; font-weight: 700; padding: 2px 12px; border-radius: 999px; }
+.status--ok { background: var(--good-wash); color: var(--good); }
+.status--wait { background: var(--warn-wash); color: var(--warn); }
+
+/* demo */
+.demo { background: var(--card); border: 1px solid var(--line); border-radius: 34px; padding: clamp(18px, 4vw, 36px); box-shadow: var(--shadow); }
+.questions { display: flex; flex-wrap: wrap; gap: 10px; max-block-size: 232px; overflow-y: auto; padding: 4px; }
+.q {
+  display: inline-flex; align-items: center; gap: 8px; text-align: start;
+  min-block-size: 44px; padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  font: 600 1rem Assistant, sans-serif; color: var(--ink);
+  background: var(--paper); border: 1.5px solid var(--line);
+}
+.q:hover { border-color: var(--accent-fill); }
+.q[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.tag { font-size: 0.8rem; font-weight: 700; padding: 1px 10px; border-radius: 999px; white-space: nowrap; }
+.tag--multi { background: var(--accent-wash); color: var(--accent); }
+.tag--unanswerable, .tag--injection, .tag--trap { background: var(--warn-wash); color: var(--warn); }
+.tag--right { background: var(--good-wash); color: var(--good); }
+.free { display: flex; flex-wrap: wrap; gap: 10px; margin-block-start: 18px; }
+.free label { inline-size: 100%; font-weight: 700; }
+.free input {
+  flex: 1 1 240px; min-block-size: 48px; padding: 8px 18px; border-radius: 999px;
+  border: 1.5px solid var(--ink-soft); font: 400 1.05rem Assistant, sans-serif; background: #fff; color: var(--ink);
+}
+.asked { margin-block: 30px 6px; font-family: Rubik, sans-serif; font-weight: 700; font-size: 1.35rem; }
+.asked::before { content: "השאלה: "; color: var(--accent); }
+.step { margin-block-start: 26px; padding-block-start: 22px; border-block-start: 1px dashed var(--line); }
+.step__head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.step__n {
+  flex: none; inline-size: 34px; block-size: 34px; border-radius: 50%; background: var(--accent-soft); color: var(--ink);
+  display: inline-grid; place-items: center; font: 800 1rem Rubik, sans-serif;
+}
+.step__why { color: var(--ink-soft); margin-block: 8px 14px; max-inline-size: 70ch; }
+.words { display: flex; flex-wrap: wrap; gap: 8px; }
+.word { display: inline-flex; flex-direction: column; background: var(--accent-wash); border-radius: 14px; padding: 6px 14px; line-height: 1.3; }
+.word small { color: var(--ink-soft); font-size: 0.82rem; }
+.word--skip { background: transparent; border: 1px dashed var(--line); color: var(--ink-soft); }
+.word--skip b { font-weight: 400; text-decoration: line-through; }
+.cols { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.cols h4 { margin: 0 0 8px; font: 700 1.05rem Rubik, sans-serif; }
+.hits { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.hit { border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
+.hit summary { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; cursor: pointer; min-block-size: 44px; }
+.hit__rank { flex: none; font: 800 0.9rem Rubik, sans-serif; color: var(--accent); inline-size: 1.4em; }
+.hit__title { flex: 1 1 12ch; font-weight: 600; font-size: 1rem; }
+.hit__text { padding: 0 14px 8px; font-size: 1rem; color: var(--ink-soft); }
+.hit__id { display: block; padding: 0 14px 12px; color: var(--ink-soft); text-align: end; }
+.hit--right { border-color: var(--good); background: var(--good-wash); }
+.hit--trap { border-color: #d9a24a; background: var(--warn-wash); }
+.hit--note { padding: 12px 14px; color: var(--ink-soft); font-size: 1rem; border-style: dashed; }
+.note { color: var(--ink-soft); font-size: 1rem; margin-block-end: 10px; }
+.answer { background: var(--deep); color: var(--on-deep); border-radius: 22px; padding: 22px 24px; }
+.answer__kind { color: var(--on-deep-accent); font-weight: 700; }
+.answer__label { margin-block-start: 14px; font-size: 0.95rem; opacity: 0.85; }
+.answer__text { font-size: 1.15rem; }
+.answer__cites { margin-block-start: 12px; font-size: 0.95rem; }
+.answer__cites code { background: rgba(255, 255, 255, 0.12); padding: 2px 8px; border-radius: 8px; display: inline-block; }
+.honest { margin-block-start: 14px; font-size: 0.98rem; color: var(--ink-soft); }
+
+/* results */
+.bar { display: grid; grid-template-columns: minmax(150px, 280px) 1fr 3.2em; align-items: center; gap: 12px; margin-block: 12px; }
+.bar__label { font-weight: 600; font-size: 1rem; }
+.bar__track { background: var(--accent-wash); border-radius: 999px; block-size: 18px; overflow: hidden; display: block; }
+.bar__fill { display: block; block-size: 100%; background: var(--accent-soft); border-radius: 999px; }
+.bar__fill--best { background: var(--accent-fill); }
+.bar__value { font: 800 1.05rem Rubik, sans-serif; }
+
+.deep { background: var(--deep); color: var(--on-deep); background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 80px 80px; }
+.deep .lead { color: var(--on-deep); opacity: 0.9; }
+.deep h2 { color: #fff; }
+.flow { counter-reset: flow; list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.flow li { counter-increment: flow; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-radius: 22px; padding: 20px; }
+.flow li::before { content: counter(flow); display: inline-grid; place-items: center; inline-size: 32px; block-size: 32px; border-radius: 50%; background: var(--on-deep-accent); color: var(--deep); font: 800 1rem Rubik, sans-serif; margin-block-end: 10px; }
+.flow h3 { color: #fff; margin-block-end: 6px; }
+.flow p { font-size: 1rem; }
+
+.glossary { display: grid; gap: 10px; }
+.glossary details { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 4px 20px; }
+.glossary summary { cursor: pointer; font: 700 1.1rem Rubik, sans-serif; padding-block: 12px; min-block-size: 44px; }
+.glossary summary span { font: 400 0.95rem Assistant, sans-serif; color: var(--ink-soft); margin-inline-start: 8px; }
+.glossary p { padding-block-end: 16px; max-inline-size: 70ch; }
+
+footer { padding-block: 40px 56px; color: var(--ink-soft); font-size: 1rem; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+
+@media (max-width: 560px) {
+  body { font-size: 1.05rem; }
+  .bar { grid-template-columns: 1fr 3.2em; }
+  .bar__label { grid-column: 1 / -1; }
+  .top .btn { padding-inline: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .btn { transition: none; }
+  .btn:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">דילוג לתוכן</a>
+
+<header class="top">
+  <div class="wrap top__row">
+    <a class="logo" href="#main" aria-label="מוקד, לראש העמוד">מוקד<span>.</span></a>
+    <a class="btn btn--ghost" href="https://github.com/lizamir/moked">הקוד ב-GitHub</a>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap hero">
+    <h1>עוזר AI שעונה רק ממה <mark>שקרא</mark></h1>
+    <p class="hero__lead">מוקד עונה בעברית על שאלות על בינה מלאכותית. הוא לא עונה מהזיכרון: הוא מחפש במדריך, מציין מאיפה לקח כל משפט, ואומר "לא יודע" כשהתשובה לא כתובה שם.</p>
+    <div class="hero__actions">
+      <a class="btn" href="#demo">לנסות את ההדגמה</a>
+      <a class="btn btn--ghost" href="#how">איך זה עובד</a>
+    </div>
+    <ul class="chips" aria-label="הפרויקט במספרים">
+      <li><b data-count="docs"></b> מסמכים במדריך</li>
+      <li><b data-count="chunks"></b> קטעים לחיפוש</li>
+      <li><b data-count="questions"></b> שאלות מבחן</li>
+    </ul>
+  </div>
+
+  <section aria-labelledby="why-title">
+    <div class="wrap">
+      <h2 id="why-title">הבעיה: צ'אט רגיל עונה גם כשהוא לא יודע</h2>
+      <p class="lead">מודל שפה מרכיב תשובה שנשמעת הגיונית. כשאין לו מידע הוא לא נעצר, וכך נולדות תשובות בטוחות ושגויות. הפתרון של מוקד פשוט: קודם קוראים, אחר כך עונים.</p>
+      <div class="cards">
+        <article class="card card--bad">
+          <h3>צ'אט רגיל: מבחן מהזיכרון</h3>
+          <p>עונה לפי מה שזכור לו מהאימון. אי אפשר לדעת מאיפה הגיעה התשובה, והוא ימציא מספר או מקור אם זה נשמע סביר.</p>
+        </article>
+        <article class="card card--good">
+          <h3>מוקד: מבחן בספר פתוח</h3>
+          <p>מחפש קודם במדריך, מקבל את הקטעים המתאימים, ועונה רק מתוכם. ליד כל משפט מופיע המקור, ואם אין קטע מתאים הוא אומר שאין לו תשובה.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="demo" aria-labelledby="demo-title">
+    <div class="wrap">
+      <h2 id="demo-title">ההדגמה: לעקוב אחרי שאלה אחת</h2>
+      <p class="lead">בוחרים שאלה ורואים מה קורה לה בדרך לתשובה. החיפוש שמוצג כאן אמיתי: אותו קוד של הפרויקט רץ עכשיו בדפדפן שלכם.</p>
+
+      <div class="demo">
+        <h3 id="pick-title">20 שאלות המבחן</h3>
+        <div class="questions" id="questions" role="group" aria-labelledby="pick-title"></div>
+        <form class="free" id="free">
+          <label for="free-input">או שאלה משלכם על AI</label>
+          <input id="free-input" type="text" autocomplete="off" placeholder="למשל: מה זה טוקן?">
+          <button class="btn" type="submit">לחפש</button>
+        </form>
+
+        <div aria-live="polite">
+          <p class="asked" id="asked"></p>
+
+          <div class="step">
+            <div class="step__head"><span class="step__n">1</span><h3>מפרקים את השאלה למילים</h3></div>
+            <p class="step__why">בעברית אותיות כמו ו', ב', ה' נדבקות למילה. כדי ש"במסלול" ימצא גם "מסלול", הקוד מקלף אותן ומחפש גם את הצורה הקצרה. מילים נפוצות כמו "מה" או "של" לא עוזרות לחיפוש, ולכן מדלגים עליהן. הצורות הקצרות לא תמיד מילים אמיתיות, וזה בסדר: הן רק צריכות להתאים לאותה צורה במסמכים.</p>
+            <div class="words" id="words"></div>
+          </div>
+
+          <div class="step">
+            <div class="step__head"><span class="step__n">2</span><h3>שני חיפושים במקביל</h3></div>
+            <p class="step__why">חיפוש אחד מוצא קטעים עם אותן מילים. חיפוש שני מוצא קטעים עם אותה משמעות, גם אם המילים שונות. לכל אחד חולשות משלו, ולכן מריצים את שניהם. לחיצה על קטע פותחת את הטקסט שלו.</p>
+            <div class="cols">
+              <div><h4>לפי מילים</h4><ol class="hits" id="hits-keyword"></ol></div>
+              <div><h4>לפי משמעות</h4><ol class="hits" id="hits-meaning"></ol></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__head"><span class="step__n">3</span><h3>מאחדים לרשימה אחת</h3></div>
+            <p class="step__why">קטע ששני החיפושים דירגו גבוה עולה לראש. חמשת הקטעים האלה הם כל מה שהסוכן יקבל לקריאה.</p>
+            <p class="note" id="final-note"></p>
+            <ol class="hits" id="hits-final"></ol>
+          </div>
+
+          <div class="step">
+            <div class="step__head"><span class="step__n">4</span><h3>הסוכן קורא ועונה</h3></div>
+            <p class="step__why">הסוכן הוא מודל שפה (Claude) שמקבל את הקטעים ואת ההנחיה לענות רק מתוכם ולציין מקור. אם הקטעים לא מספיקים, הוא יכול לחפש שוב בניסוח אחר.</p>
+            <div class="answer" id="answer"></div>
+            <p class="honest">חשוב לדעת: שלב 4 לא רץ בעמוד הזה, כי הוא צריך מפתח API בתשלום. מה שמוצג הוא התשובה שהמבחן מצפה לה, מתוך קובץ הבדיקות של הפרויקט. שלבים 1 עד 3 אמיתיים.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="deep" id="how" aria-labelledby="how-title">
+    <div class="wrap">
+      <h2 id="how-title">איך זה עובד, בחמישה צעדים</h2>
+      <p class="lead">לשיטה הזו קוראים RAG: לתת למודל לקרוא לפני שהוא עונה.</p>
+      <ol class="flow">
+        <li><h3>חותכים את המדריך</h3><p>כל מסמך נחתך לקטעים קצרים לפי הכותרות שלו, כך שכל קטע עוסק בנושא אחד.</p></li>
+        <li><h3>מחפשים פעמיים</h3><p>פעם לפי מילים ופעם לפי משמעות, ומאחדים את התוצאות.</p></li>
+        <li><h3>מדרגים מחדש</h3><p>מודל קטן ומהיר קורא את המועמדים המובילים ומסדר אותם לפי התאמה לשאלה.</p></li>
+        <li><h3>הסוכן עונה</h3><p>מודל גדול קורא את הקטעים, כותב תשובה קצרה ומציין מקור לכל משפט.</p></li>
+        <li><h3>בודקים במבחן</h3><p>20 שאלות קבועות רצות אחרי כל שינוי בקוד, ואם האיכות יורדת, הבדיקה נכשלת.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="results-title">
+    <div class="wrap">
+      <h2 id="results-title">האם זה באמת עובד? המספרים</h2>
+      <p class="lead">לכל שאלה במבחן ידוע מראש איזה קטע במדריך עונה עליה. הגרף מראה באיזה אחוז מהשאלות הקטע הנכון הופיע בין חמש התוצאות הראשונות, בכל שיטת חיפוש.</p>
+      <div class="card">
+        <div id="chart" role="group" aria-label="אחוז השאלות שבהן הקטע הנכון הופיע בחמש התוצאות הראשונות, לפי שיטת חיפוש"></div>
+        <p class="honest">המספרים נמדדו על 17 השאלות שיש להן תשובה במדריך. זה מבחן קטן, ולכן הוא מראה כיוון ולא אמת מוחלטת.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="parts-title">
+    <div class="wrap">
+      <h2 id="parts-title">מה יש בפרויקט</h2>
+      <p class="lead">הכול כתוב בקוד, בשפת TypeScript, בלי כלי גרירה מוכנים.</p>
+      <div class="cards">
+        <article class="card"><h3>מנוע חיפוש לעברית</h3><p>חיפוש מילים שמבין אותיות שנדבקות למילה, חיפוש לפי משמעות, ואיחוד של שניהם.</p><span class="status status--ok">רץ ונבדק</span></article>
+        <article class="card"><h3>שרת MCP</h3><p>מחבר את מנוע החיפוש לאפליקציות כמו Claude Desktop, כך שגם הן יכולות לחפש במדריך.</p><span class="status status--ok">רץ ונבדק</span></article>
+        <article class="card"><h3>מבחן אוטומטי</h3><p>20 שאלות, כולל שאלות בלי תשובה ושאלת מלכודת. רץ ב-GitHub אחרי כל שינוי.</p><span class="status status--ok">מבחן החיפוש רץ ונבדק</span></article>
+        <article class="card"><h3>הסוכן והדירוג מחדש</h3><p>החלקים שמדברים עם Claude: כתיבת התשובה, דירוג הקטעים ומבחן התשובות.</p><span class="status status--wait">כתוב, ממתין למפתח API</span></article>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="glossary-title">
+    <div class="wrap">
+      <h2 id="glossary-title">מילון קצר</h2>
+      <p class="lead">המילים שחוזרות בפרויקט, בעברית פשוטה.</p>
+      <div class="glossary">
+        <details><summary>מודל שפה <span dir="ltr">LLM</span></summary><p>תוכנה שלמדה מהמון טקסט לחזות איזו מילה תבוא עכשיו. Claude ו-ChatGPT בנויים על מודלים כאלה.</p></details>
+        <details><summary>RAG</summary><p>שיטה שבה המערכת מחפשת קודם במסמכים, מצרפת את מה שמצאה לשאלה, ורק אז המודל עונה. מבחן בספר פתוח.</p></details>
+        <details><summary>קטע <span dir="ltr">chunk</span></summary><p>חתיכה קצרה של מסמך. מחפשים בקטעים ולא במסמכים שלמים, כי כך החיפוש מדויק יותר.</p></details>
+        <details><summary>חיפוש מילות מפתח <span dir="ltr">BM25</span></summary><p>חיפוש שמוצא קטעים עם אותן מילים שבשאלה, ונותן יותר משקל למילים נדירות.</p></details>
+        <details><summary>הטמעה <span dir="ltr">embedding</span></summary><p>רשימה של מספרים שמייצגת את המשמעות של טקסט. טקסטים עם משמעות דומה מקבלים מספרים קרובים, וכך מחפשים לפי משמעות.</p></details>
+        <details><summary>חיפוש היברידי</summary><p>הרצה של שני החיפושים יחד ואיחוד התוצאות לרשימה אחת.</p></details>
+        <details><summary>דירוג מחדש <span dir="ltr">re-ranking</span></summary><p>שלב נוסף שבו מודל קורא את התוצאות המובילות ומסדר אותן לפי מידת ההתאמה לשאלה.</p></details>
+        <details><summary>סוכן <span dir="ltr">agent</span></summary><p>מודל שפה שמקבל מטרה וכלים, ומחליט בעצמו אילו צעדים לעשות. כאן הכלים הם חיפוש במדריך וקריאת מסמך.</p></details>
+        <details><summary>MCP</summary><p>תקן אחיד לחיבור מודלים לכלים, כמו שקע USB. שרת MCP מציע יכולות, ואפליקציות שתומכות בתקן מתחברות אליו.</p></details>
+        <details><summary>מבחן <span dir="ltr">eval</span></summary><p>רשימה קבועה של שאלות עם תשובות ידועות. מריצים אותה אחרי כל שינוי כדי לדעת אם המערכת השתפרה או נפגעה.</p></details>
+        <details><summary>הזרקת פרומפט <span dir="ltr">prompt injection</span></summary><p>טקסט ששותלים בתוך מסמך כדי שהמודל יחשוב שזו הוראה. במדריך של מוקד יש מלכודת כזו בכוונה, והמבחן בודק שהסוכן לא נופל בה.</p></details>
+        <details><summary>API ומפתח API</summary><p>API הוא הדרך שבה תוכנה אחת מדברת עם תוכנה אחרת. מפתח API הוא הסיסמה שמזהה אתכם מול השירות, ולפיה מחייבים על השימוש.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>בנתה: ליז חג׳ג׳</span>
+    <span>המדריך "AI בגובה העיניים" נכתב עבור הפרויקט הזה ומשמש כנתוני הדגמה.</span>
+    <a href="https://github.com/lizamir/moked">github.com/lizamir/moked</a>
+  </div>
+</footer>
+
+<script type="application/json" id="moked-data">__DATA__</script>
+<script>/*__SCRIPT__*/</script>
+</body>
+</html>

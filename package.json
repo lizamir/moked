@@ -1,7 +1,7 @@
 {
   "name": "moked",
   "version": "0.1.0",
-  "description": "Hebrew-first RAG agent with hybrid retrieval, Claude re-ranking, an MCP server and an eval suite",
+  "description": "Hebrew RAG agent that explains AI in plain language: hybrid retrieval, Claude re-ranking, an MCP server and an eval suite",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -13,7 +13,8 @@
     "eval:retrieval": "tsx evals/retrieval.ts",
     "eval:answers": "tsx evals/answers.ts",
     "test": "tsx --test tests/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p site",
+    "build:site": "tsx scripts/build-site.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.7.0",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "esbuild": "^0.28.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }

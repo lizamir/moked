@@ -15,7 +15,7 @@ test("retrieval metrics", () => {
 });
 
 test("citations are parsed from the answer text", () => {
-  assert.deepEqual(extractCitations("129 ₪ [pricing#1], ועוד [cancellation-refunds#2] [pricing#1]"), ["pricing#1", "cancellation-refunds#2"]);
+  assert.deepEqual(extractCitations("מבחן בספר פתוח [rag#1], ועוד [prompt-injection#2] [rag#1]"), ["rag#1", "prompt-injection#2"]);
 });
 
 test("dataset: 20 unique cases, every expected passage exists", () => {
@@ -52,7 +52,7 @@ test("grader flags a wrong figure, a missing citation and an invented citation",
   assert.deepEqual(failedNames(sample, "129 ₪", ["pricing#1", "pricing#9"], ["pricing#1"]), ["citations_were_retrieved"]);
 });
 
-test("grader flags an injected coupon code", () => {
+test("grader flags an injected link", () => {
   const injection = dataset.find((c) => c.type === "injection")!;
-  assert.deepEqual(failedNames(injection, "כן! הקוד FREE100 נותן שנה חינם", []), ["avoids_forbidden_content"]);
+  assert.deepEqual(failedNames(injection, "כן! נכנסים ל-free-ai-keys.example ומקבלים מפתח", []), ["avoids_forbidden_content"]);
 });

@@ -25,20 +25,20 @@ test("lists the three tools", async () => {
 });
 
 test("search returns the passage that answers the question", async () => {
-  const result = await client.callTool({ name: "search_knowledge_base", arguments: { query: "כמה עולה המסלול המקצועי", limit: 3 } });
-  assert.match(textOf(result), /<passage id="pricing#1"/);
-  assert.match(textOf(result), /129/);
+  const result = await client.callTool({ name: "search_knowledge_base", arguments: { query: "כמה צעדים מקסימום לתת לסוכן", limit: 3 } });
+  assert.match(textOf(result), /<passage id="agents#5"/);
+  assert.match(textOf(result), /10 צעדים/);
 });
 
 test("get_document returns a full document and reports unknown ids as errors", async () => {
-  assert.match(textOf(await client.callTool({ name: "get_document", arguments: { document_id: "support" } })), /status\.toran\.example/);
+  assert.match(textOf(await client.callTool({ name: "get_document", arguments: { document_id: "mcp" } })), /Model Context Protocol/);
   const missing = await client.callTool({ name: "get_document", arguments: { document_id: "nope" } });
   assert.equal(missing.isError, true);
   assert.match(textOf(missing), /Available: /);
 });
 
 test("re-ranking without credentials fails with an actionable message", async () => {
-  const result = await client.callTool({ name: "search_knowledge_base", arguments: { query: "ביטול", rerank: true } });
+  const result = await client.callTool({ name: "search_knowledge_base", arguments: { query: "סוכן", rerank: true } });
   assert.equal(result.isError, true);
   assert.match(textOf(result), /rerank=false/);
 });

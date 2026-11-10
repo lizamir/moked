@@ -4,7 +4,7 @@ import { createRetriever, hasAnthropicCredentials, loadKnowledgeBase } from "./r
 
 const question = process.argv.slice(2).join(" ").trim();
 if (!question) {
-  console.error('Usage: npm run ask -- "כמה עולה המסלול המקצועי?"');
+  console.error('Usage: npm run ask -- "למה AI ממציא דברים?"');
   process.exit(1);
 }
 if (!hasAnthropicCredentials()) {
