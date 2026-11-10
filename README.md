@@ -6,7 +6,7 @@ No LangChain, no vector database, no orchestration framework. Every stage is a s
 
 The knowledge base is "AI בגובה העיניים", a 14-document Hebrew guide written for this project: what a language model is, why chatbots invent things, RAG, agents, MCP, evals, prompt injection, privacy. People ask it things like "למה הצ'אט ממציא עובדות?" and get a short answer with the passage it came from, or an honest "the guide does not cover that".
 
-**New here, or not a programmer?** Open [`docs/index.html`](docs/index.html): a Hebrew page that explains the project step by step and runs the real keyword search in your browser.
+**New here, or not a programmer?** Open **[lizhajage.co.il/moked](https://lizhajage.co.il/moked/)**: a Hebrew page that explains the project step by step and runs the real keyword search in your browser.
 
 ```mermaid
 flowchart LR
