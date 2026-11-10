@@ -39,5 +39,5 @@ export async function createServices({ runtimeDir = RUNTIME_DIR, clock }: { runt
 
 /** Every tool the agent has, in one list. Web search is not here: it runs on Anthropic's servers (see agent/conversation.ts). */
 export function createTools(s: Services): AgentTool[] {
-  return [...knowledgeTools(s.kb, s.retriever, s.profile.name), ...calendarTools(s.book, s.profile), ...emailTools(s.mailer), ...logTools(s.log)];
+  return [...knowledgeTools(s.kb, s.retriever, s.profile.name), ...calendarTools(s.book, s.profile), ...emailTools(s.mailer, s.book, s.profile, s.clock), ...logTools(s.log)];
 }

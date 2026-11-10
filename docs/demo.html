@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מוקד: הדמיית שיחה</title>
+<meta name="description" content="שיחה אמיתית עם סוכן ה-AI של פרווה, שהוקלטה פעם אחת ומנוגנת מחדש: שאלה על מחיר, קביעת תור באישור הלקוחה, ומייל עם זימון ליומן.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #fbf7f5; --ink: #24161d; --ink-soft: #5d4a53; --deep: #2c1520; --accent: #a3345a; --accent-fill: #c2456f;
+  --accent-soft: #f4c3d0; --accent-wash: #fbe9ee; --line: #ead9de; --good: #1f6b4a; --good-wash: #e3f3ea;
+  --chat-bg: #efe7dd; --chat-head: #0b5c4f; --me: #d9fdd3; --them: #ffffff; --chat-ink: #111b21; --chat-muted: #667781;
+  --grid: rgba(194, 69, 111, 0.09);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background-color: var(--paper); color: var(--ink); font-family: Assistant, system-ui, sans-serif;
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+h1, h2, h3 { font-family: Rubik, system-ui, sans-serif; margin: 0; line-height: 1.2; }
+.page { max-inline-size: 1280px; margin-inline: auto; padding: 24px 20px 48px; }
+.intro { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; margin-block-end: 18px; }
+.intro h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; }
+.intro p { margin: 6px 0 0; color: var(--ink-soft); max-inline-size: 62ch; }
+.controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.controls button, .controls a {
+  min-block-size: 44px; padding: 8px 18px; border-radius: 999px; border: 2px solid var(--ink); background: var(--ink); color: #fff;
+  font: 700 1rem Assistant, sans-serif; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
+}
+.controls .ghost { background: transparent; color: var(--ink); }
+:focus-visible { outline: 3px solid var(--accent-fill); outline-offset: 3px; }
+
+/* the stage is a fixed 16:9 frame so the video export looks like the page */
+.stage {
+  inline-size: 100%; aspect-ratio: 16 / 9; background: var(--paper); border: 1px solid var(--line); border-radius: 28px; overflow: hidden;
+  display: grid; grid-template-columns: 400px 1fr; grid-template-rows: minmax(0, 1fr); gap: 28px; padding: 28px 36px 40px; position: relative;
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.phone { block-size: 100%; min-block-size: 0; border-radius: 34px; background: #101010; padding: 10px; box-shadow: 0 30px 70px -30px rgba(44, 21, 32, .55); display: flex; }
+.screen { flex: 1; min-block-size: 0; border-radius: 26px; overflow: hidden; background: var(--chat-bg); display: flex; flex-direction: column; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.chat-head { background: var(--chat-head); color: #fff; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+.chat-head .avatar { inline-size: 38px; block-size: 38px; border-radius: 50%; background: var(--accent-soft); color: var(--deep); display: grid; place-items: center; font-weight: 800; }
+.chat-head b { display: block; font-size: 1rem; }
+.chat-head small { font-size: .78rem; opacity: .85; }
+.chat { flex: 1; min-block-size: 0; overflow: hidden; padding: 12px 10px; display: flex; flex-direction: column; gap: 6px; }
+.bubble { max-inline-size: 86%; padding: 7px 10px 8px; border-radius: 10px; line-height: 1.42; font-size: .9rem; color: var(--chat-ink); box-shadow: 0 1px .5px rgba(0,0,0,.13); white-space: normal; }
+.bubble.me { align-self: flex-start; background: var(--me); border-start-start-radius: 2px; }
+.bubble.them { align-self: flex-end; background: var(--them); border-start-end-radius: 2px; }
+.bubble ul { margin: 4px 0; padding-inline-start: 18px; }
+.bubble .cite { color: var(--chat-muted); font-size: .72rem; direction: ltr; unicode-bidi: isolate; }
+.bubble .time { display: block; text-align: end; font-size: .68rem; color: var(--chat-muted); margin-block-start: 2px; }
+.approval-buttons { display: flex; gap: 6px; margin-block-start: 8px; }
+.approval-buttons span { flex: 1; text-align: center; padding: 8px 4px; border: 1px solid #d1d7db; border-radius: 8px; color: #027eb5; font-weight: 600; font-size: .88rem; background: #fff; }
+.approval-buttons span.pressed { background: #e7f6ff; border-color: #027eb5; }
+.typing { align-self: flex-end; background: #fff; border-radius: 10px; padding: 9px 12px; display: flex; gap: 4px; box-shadow: 0 1px .5px rgba(0,0,0,.13); }
+.typing i { inline-size: 7px; block-size: 7px; border-radius: 50%; background: #9aa7ae; display: block; }
+.composer { background: #f0f2f5; padding: 8px; display: flex; gap: 8px; align-items: center; }
+.composer div { flex: 1; background: #fff; border-radius: 20px; padding: 9px 14px; color: var(--chat-muted); font-size: .9rem; min-block-size: 38px; }
+.composer span { inline-size: 38px; block-size: 38px; border-radius: 50%; background: #0e7a3f; display: grid; place-items: center; color: #fff; }
+
+.side { display: flex; flex-direction: column; gap: 14px; min-inline-size: 0; overflow: hidden; }
+.side-head { display: flex; align-items: baseline; gap: 12px; }
+.side-head h2 { font-size: 1.5rem; font-weight: 800; }
+.side-head h2 mark { background: var(--accent-soft); color: inherit; padding: 0 .15em; border-radius: 8px; }
+.side-head small { color: var(--ink-soft); font-size: .95rem; }
+.feed { display: flex; flex-direction: column; gap: 10px; }
+.entry { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 12px 16px; box-shadow: 0 14px 34px -26px rgba(44, 21, 32, .4); }
+.entry .label { font: 700 .82rem Rubik, sans-serif; color: var(--accent); letter-spacing: .01em; }
+.entry .what { font-size: 1.02rem; font-weight: 600; margin-block-start: 2px; }
+.entry .detail { color: var(--ink-soft); font-size: .92rem; }
+.entry code { direction: ltr; unicode-bidi: isolate; font-size: .82rem; background: var(--accent-wash); padding: 1px 6px; border-radius: 6px; }
+.entry.gate { background: var(--deep); color: #f7ecef; border-color: var(--deep); }
+.entry.gate .label { color: #f3b3c7; }
+.entry.gate .detail { color: #f7ecef; opacity: .85; }
+.entry.done { border-color: var(--good); background: var(--good-wash); }
+.entry.done .label { color: var(--good); }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; box-shadow: 0 14px 34px -26px rgba(44, 21, 32, .4); min-inline-size: 0; }
+.card h3 { font-size: 1rem; margin-block-end: 6px; display: flex; align-items: center; gap: 8px; }
+.card .cal-date { display: flex; gap: 12px; align-items: center; }
+.card .cal-day { inline-size: 58px; border-radius: 12px; overflow: hidden; text-align: center; border: 1px solid var(--line); flex: none; }
+.card .cal-day span { display: block; background: var(--accent-fill); color: #fff; font-size: .75rem; font-weight: 700; padding: 2px 0; }
+.card .cal-day b { display: block; font: 800 1.5rem Rubik, sans-serif; padding: 2px 0 4px; }
+.card p { margin: 0; font-size: .9rem; color: var(--ink-soft); }
+.card .mail-subject { font-weight: 700; color: var(--ink); font-size: .92rem; }
+.card .mail-body { white-space: pre-line; font-size: .82rem; max-block-size: 7.5em; overflow: hidden; margin-block-start: 4px; mask-image: linear-gradient(#000 70%, transparent); }
+.attach { display: inline-flex; align-items: center; gap: 6px; margin-block-start: 8px; padding: 4px 10px; border-radius: 999px; background: var(--accent-wash); font-size: .82rem; font-weight: 700; color: var(--accent); }
+.honest-tag { display: inline-block; margin-block-start: 6px; font-size: .78rem; font-weight: 700; color: #8a4b00; background: #fff0d6; padding: 2px 10px; border-radius: 999px; }
+.watermark { position: absolute; inset-block-end: 12px; inset-inline-end: 36px; font-size: .78rem; color: var(--ink-soft); }
+.notes { margin-block-start: 18px; color: var(--ink-soft); font-size: 1rem; max-inline-size: 80ch; }
+.notes a { color: var(--accent); }
+
+@media (max-width: 900px) {
+  .stage { aspect-ratio: auto; grid-template-columns: 1fr; padding: 16px; }
+  .phone { block-size: 640px; max-inline-size: 400px; margin-inline: auto; inline-size: 100%; }
+  .cards { grid-template-columns: 1fr; }
+  .watermark { position: static; }
+}
+body.capture { background: var(--paper); }
+body.capture .intro, body.capture .notes { display: none; }
+body.capture .page { padding: 0; max-inline-size: none; }
+body.capture .stage { inline-size: 1280px; block-size: 720px; border-radius: 0; border: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="intro">
+    <div>
+      <h1>שיחה עם הסוכן של פרווה</h1>
+      <p>שיחה אמיתית עם הסוכן, שהוקלטה פעם אחת מול Claude ומנוגנת כאן מחדש, בלי עלות. משמאל רואים מה קרה מאחורי הקלעים: אילו כלים הסוכן הפעיל, ואיפה הוא עצר לבקש אישור.</p>
+    </div>
+    <div class="controls">
+      <button type="button" id="play">עצירה</button>
+      <button type="button" class="ghost" id="restart">מההתחלה</button>
+      <a class="ghost" href="./">חזרה להסבר</a>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="phone" aria-hidden="true">
+      <div class="screen">
+        <div class="chat-head"><div class="avatar">פ</div><div><b>פרווה</b><small>מספרה ופנסיון לכלבים</small></div></div>
+        <div class="chat" id="chat"></div>
+        <div class="composer"><div id="composer">הודעה</div><span>➤</span></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="side-head"><h2>מאחורי <mark>הקלעים</mark></h2><small>מה הסוכן עושה בזמן שהלקוחה מחכה</small></div>
+      <div class="feed" id="feed"></div>
+      <div class="cards" id="cards"></div>
+    </div>
+    <div class="watermark">מוקד · סוכן AI לעסק · שיחה אמיתית שהוקלטה, "פרווה" הוא עסק בדוי</div>
+  </div>
+
+  <div class="notes" id="transcript-note">
+    <p>מה רואים כאן: הלקוחה שואלת על מחיר, והסוכן עונה ממאגר הידע ומציין מקור. היא מבקשת תור, והסוכן בודק ביומן, עוצר ומבקש אישור, ורק אחרי "כן" קובע. בסוף הוא כותב מייל עם זימון ליומן. המייל לא נשלח באמת, כי לא חובר שרת מייל, והסוכן אומר את זה בעצמו במקום להעמיד פנים.</p>
+  </div>
+</div>
+
+<script type="application/json" id="demo-data">{"transcript":[{"from":"customer","text":"היי! כמה עולה מקלחת וייבוש לכלב?"},{"from":"agent","kind":"text","text":"היי! מקלחת וייבוש עולה **130 ₪**, וזה המחיר לכל גודל של כלב. הטיפול כולל מקלחת עם שמפו שמתאים לסוג הפרווה, ייבוש והברשה, ונמשך כשעה [services-prices#1].\n\nכדאי לדעת שיש תוספות אפשריות [services-prices#4]:\n- **פירוק קשרים** בפרווה סבוכה מאוד: עוד 60 ₪\n- **שמפו נגד פרעושים**: עוד 40 ₪\n\nאם יש צורך בתוספת, מודיעים לכם לפני שמתחילים, ולא תחויבו עליה בלי הסכמה.\n\nרוצים שאבדוק תורים פנויים? באיזה תאריך נוח לכם?","steps":[{"tool":"search_knowledge_base","kind":"read","input":{"query":"מחיר מקלחת וייבוש"},"outcome":"ok","result":"<passage id=\"services-prices#1\" document=\"טיפולים ומחירים במספרה\" section=\"מקלחת וייבוש\">\nמקלחת עם שמפו שמתאים לסוג הפרווה, ייבוש והברשה. הטיפול נמשך כשעה ועולה 130 ₪ לכל גודל של כלב.\n<\/passage>\n\n<passage id=\"services-prices#2\" document=\"טיפולים ומחירים במספרה\" section=\"תספורת מלאה\">\nתספורת מלאה כוללת מקלחת, ייבוש, תספורת לכל הגוף וקיצוץ ציפורניים. המחיר נקבע לפי משקל הכלב. כלב קטן, עד 10 ק\"ג: 190 ₪, כשעה וחצי. כלב בינוני, 10 עד 25 ק\"ג: 240 ₪, כשעתיים. כלב גדול, מעל 25 ק\"ג: 310 ₪, כשעתיים וחצי.\n<\/passage>\n\n<passage id=\"services-prices#4\" document=\"טיפולים ומחירים במספרה\" section=\"תוספות\">\nפרווה סבוכה מאוד שדורשת פירוק קשרים מוסיפה 60 ₪ למחיר הטיפול. רחצה בשמפו נגד פרעושים מוסיפה 40 ₪. על כל תוספת מודיעים לבעלים לפני שמתחילים, ולא מחייבים בלי הסכמה.\n<\/passage>\n\n<passage id=\"services-prices#3\" document=\"טיפולים ומחירים במספרה\" section=\"קיצוץ ציפורניים\">\nקיצוץ ציפורניים בלבד נמשך כחצי שעה ועולה 50 ₪. בתספורת מלאה הקיצוץ כבר כלול במחיר.\n<\/passage>\n\n<passage id=\"puppies#2\" document=\"גורים\" section=\"מפגש היכרות\">\nלגור שמגיע בפעם הראשונה מומלץ מפגש היכרות: חצי שעה שבה הוא מכיר את המקום, את רעש המייבש ואת המגע במסרק, בלי תספורת מלאה. המפגש עולה 90 ₪.\n<\/passage>"}]},{"from":"customer","text":"מעולה. אפשר לקבוע ליום שלישי ב-11:00? אני דנה, והכלב שלי לוקי"},{"from":"agent","kind":"approval","text":"לפני שאני ממשיך, צריך את האישור שלך:\nלקבוע תור: מקלחת וייבוש, בתאריך 2026-11-17 בשעה 11:00, על שם דנה (לוקי)\nלאשר?"},{"from":"customer","text":"כן"},{"from":"agent","kind":"text","text":"דנה, התור נקבע! 🐾\n\n- **טיפול:** מקלחת וייבוש\n- **מתי:** יום שלישי, 17.11.2026, 11:00–12:00\n- **כלב:** לוקי\n- **מחיר:** 130 ₪\n- **מספר אישור:** apt-0001\n\nאם תרצי, אשלח לך אישור במייל עם הזמנה ליומן. צריך רק כתובת מייל.","steps":[{"tool":"check_availability","kind":"read","input":{"service_id":"bath","date":"2026-11-17"},"outcome":"ok","result":"Free start times on 2026-11-17: 09:00, 09:30, 10:00, 10:30, 11:00, 11:30, 12:00, 12:30, 13:00, 13:30, 14:00, 14:30, 15:00, 15:30, 16:00, 16:30, 17:00"},{"tool":"book_appointment","kind":"action","input":{"service_id":"bath","date":"2026-11-17","time":"11:00","customer_name":"דנה","dog_name":"לוקי"},"outcome":"ok","result":"Booked. Confirmation apt-0001: מקלחת וייבוש, 2026-11-17 11:00-12:00, 130 ILS, for דנה (לוקי)."}]},{"from":"customer","text":"תשלחו לי אישור עם זימון ליומן למייל dana@example.com"},{"from":"agent","kind":"approval","text":"לפני שאני ממשיך, צריך את האישור שלך:\nלשלוח מייל אל dana@example.com בנושא \"אישור תור – מקלחת וייבוש ללוקי בפרווה\", עם זימון ליומן\nלאשר?"},{"from":"customer","text":"כן"},{"from":"agent","kind":"text","text":"דנה, הכנתי את מייל האישור ל-dana@example.com עם הזימון ליומן, אבל הוא **לא נשלח**. כרגע אין לנו חיבור לשרת מייל, אז הוא נשאר בתיבת הדואר היוצא ולא יגיע אלייך.\n\nהתור עצמו קבוע. כדאי לשמור את הפרטים:\n- **מקלחת וייבוש ללוקי**\n- **יום שלישי, 17.11.2026, 11:00–12:00**\n- **130 ₪**\n- **מספר אישור:** apt-0001\n\nאם תרצי, אוכל להעביר לצוות בקשה שישלחו לך את האישור בעצמם.","steps":[{"tool":"send_email","kind":"action","input":{"to":"dana@example.com","subject":"אישור תור – מקלחת וייבוש ללוקי בפרווה","body":"היי דנה,\n\nהתור של לוקי בפרווה נקבע:\n\nטיפול: מקלחת וייבוש (מקלחת עם שמפו שמתאים לסוג הפרווה, ייבוש והברשה)\nתאריך: יום שלישי, 17.11.2026\nשעה: 11:00–12:00\nמחיר: 130 ₪\nמספר אישור: apt-0001\n\nמצורפת הזמנה ליומן.\n\nלתשומת לבך: פירוק קשרים בפרווה סבוכה מאוד מוסיף 60 ₪, ושמפו נגד פרעושים מוסיף 40 ₪. על כל תוספת מודיעים לך לפני שמתחילים, ולא תחויבי בלי הסכמה.\n\nנתראה!\nפרווה – מספרה ופנסיון לכלבים","invite_appointment_id":"apt-0001"},"outcome":"ok","result":"Email to dana@example.com with a calendar invite attached was written to the outbox (mail-1794343164110-1) but NOT delivered: this installation has no mail server connected. Tell the customer the email was prepared, not that it arrived."}]}],"appointment":{"id":"apt-0001","serviceId":"bath","date":"2026-11-17","start":"11:00","end":"12:00","customerName":"דנה","dogName":"לוקי","createdAt":"2026-11-15T10:00","service":"מקלחת וייבוש"},"email":{"subject":"אישור תור – מקלחת וייבוש ללוקי בפרווה","body":"היי דנה,\n\nהתור של לוקי בפרווה נקבע:\n\nטיפול: מקלחת וייבוש (מקלחת עם שמפו שמתאים לסוג הפרווה, ייבוש והברשה)\nתאריך: יום שלישי, 17.11.2026\nשעה: 11:00–12:00\nמחיר: 130 ₪\nמספר אישור: apt-0001\n\nמצורפת הזמנה ליומן.\n\nלתשומת לבך: פירוק קשרים בפרווה סבוכה מאוד מוסיף 60 ₪, ושמפו נגד פרעושים מוסיף 40 ₪. על כל תוספת מודיעים לך לפני שמתחילים, ולא תחויבי בלי הסכמה.\n\nנתראה!\nפרווה – מספרה ופנסיון לכלבים"}}</script>
+<script>
+const data = JSON.parse(document.getElementById("demo-data").textContent);
+const capture = new URLSearchParams(location.search).has("capture");
+if (capture) document.body.classList.add("capture");
+
+const LABEL = {
+  search_knowledge_base: ["חיפוש במאגר הידע", "קורא את המחירון של העסק"],
+  check_availability: ["בדיקה ביומן", "האם יום שלישי ב-11:00 פנוי?"],
+  book_appointment: ["קביעת תור", "התור נרשם ביומן"],
+  send_email: ["שליחת מייל", "מייל אישור עם זימון ליומן"],
+  read_document: ["קריאת מסמך", ""],
+  web_search: ["חיפוש באינטרנט", ""],
+};
+
+// ---------- build a timeline from the recording ----------
+
+const timeline = []; // { at, kind, ... }
+let t = 600;
+const typingMs = (text) => Math.min(2600, 900 + text.length * 9);
+const readMs = (text) => Math.min(3600, 1300 + text.length * 14);
+const msgs = data.transcript;
+
+for (let i = 0; i < msgs.length; i++) {
+  const m = msgs[i];
+  if (m.from === "customer") {
+    const isApproval = msgs[i - 1]?.kind === "approval";
+    if (isApproval) {
+      timeline.push({ at: t, kind: "press", ref: i - 1 });
+      t += 500;
+      timeline.push({ at: t, kind: "msg", side: "me", text: "כן, לאשר", ref: i });
+      timeline.push({ at: t + 150, kind: "entry", cls: "done", label: "הלקוחה אישרה", what: "הפעולה ממשיכה", detail: "" });
+      t += 700;
+    } else {
+      timeline.push({ at: t, kind: "compose", text: m.text, until: t + Math.min(1800, m.text.length * 40) });
+      t += Math.min(1800, m.text.length * 40) + 150;
+      timeline.push({ at: t, kind: "msg", side: "me", text: m.text, ref: i });
+      t += 700;
+    }
+    continue;
+  }
+  // agent message: work out which tool steps belong before it is shown
+  const steps = m.steps ?? [];
+  let before = steps;
+  if (m.kind === "approval") {
+    // the read steps of this turn ran before the approval; they are reported on the turn's final message
+    const final = msgs.slice(i).find((x) => x.from === "agent" && x.kind === "text");
+    before = (final?.steps ?? []).filter((s, idx, arr) => idx < arr.findIndex((x) => x.kind === "action"));
+  } else if (msgs[i - 2]?.kind === "approval") {
+    before = steps.filter((s) => s.kind === "action");
+  }
+  const typingStart = t;
+  timeline.push({ at: t, kind: "typing", until: null });
+  for (const s of before) {
+    t += 700;
+    const [label, what] = LABEL[s.tool] ?? [s.tool, ""];
+    const detail = s.tool === "search_knowledge_base" ? `חיפוש: "${s.input.query}"` : s.tool === "book_appointment" ? `${s.input.date} · ${s.input.time} · ${s.input.dog_name}` : s.tool === "send_email" ? `אל ${s.input.to}` : s.tool === "check_availability" ? `${s.input.service_id} · ${s.input.date}` : "";
+    timeline.push({ at: t, kind: "entry", cls: s.kind === "action" ? "done" : "", label: s.kind === "action" ? "פעולה בוצעה" : "כלי קריאה", what: label, detail: detail || what });
+    if (s.tool === "book_appointment") timeline.push({ at: t + 300, kind: "card", card: "calendar" });
+    if (s.tool === "send_email") timeline.push({ at: t + 300, kind: "card", card: "email" });
+  }
+  if (m.kind === "approval") {
+    t += 700;
+    timeline.push({ at: t, kind: "entry", cls: "gate", label: "שער האישור", what: "הסוכן עוצר ומחכה", detail: "פעולה שמשנה משהו לא רצה בלי \"כן\" מהלקוחה. זה נאכף בקוד." });
+  }
+  t = Math.max(t + 400, typingStart + typingMs(m.text));
+  timeline.push({ at: t, kind: "msg", side: "them", text: m.text, approval: m.kind === "approval", ref: i });
+  timeline.find((e) => e.kind === "typing" && e.until === null).until = t;
+  t += readMs(m.text);
+}
+const TOTAL = t + 2500;
+
+// ---------- elements ----------
+
+const chat = document.getElementById("chat");
+const feed = document.getElementById("feed");
+const cards = document.getElementById("cards");
+const composer = document.getElementById("composer");
+
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+/** The agent writes light Markdown: **bold**, "- " lists, and [doc#n] citations. */
+function format(text) {
+  const lines = esc(text).split("\n");
+  let html = "", list = false;
+  for (const line of lines) {
+    const item = line.match(/^- (.*)/);
+    if (item && !list) { html += "<ul>"; list = true; }
+    if (!item && list) { html += "</ul>"; list = false; }
+    html += item ? `<li>${item[1]}</li>` : line ? `${line}<br>` : "<br>";
+  }
+  if (list) html += "</ul>";
+  // Time ranges and dates are left-to-right inside Hebrew text, or "11:00–12:00" shows as "12:00–11:00".
+  html = html.replace(/(\d{1,2}[:.]\d{2}(?:[:.]\d{2,4})?(?:\s*[–-]\s*\d{1,2}[:.]\d{2})?)/g, '<bdi dir="ltr">$1</bdi>');
+  return html.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[([a-z0-9-]+#\d+)\]/g, '<span class="cite">[$1]</span>').replace(/(<br>)+$/, "");
+}
+
+let clock = 10 * 60 + 2;
+const stamp = () => { const s = `${String(Math.floor(clock / 60)).padStart(2, "0")}:${String(clock % 60).padStart(2, "0")}`; clock += 1; return s; };
+
+for (const e of timeline) {
+  if (e.kind === "msg") {
+    const b = document.createElement("div");
+    b.className = `bubble ${e.side}`;
+    b.innerHTML = format(e.text) + (e.approval ? '<div class="approval-buttons"><span>כן, לאשר</span><span>לא</span></div>' : "") + `<span class="time">${stamp()}</span>`;
+    e.el = b; chat.append(b);
+  } else if (e.kind === "typing") {
+    const d = document.createElement("div");
+    d.className = "typing"; d.innerHTML = "<i></i><i></i><i></i>";
+    e.el = d; chat.append(d);
+  } else if (e.kind === "entry") {
+    const d = document.createElement("div");
+    d.className = `entry ${e.cls}`;
+    d.innerHTML = `<div class="label">${esc(e.label)}</div><div class="what">${esc(e.what)}</div>${e.detail ? `<div class="detail">${esc(e.detail)}</div>` : ""}`;
+    e.el = d; feed.append(d);
+  } else if (e.kind === "card") {
+    const d = document.createElement("div");
+    d.className = "card";
+    const a = data.appointment;
+    if (e.card === "calendar") {
+      const [, mm, dd] = a.date.split("-");
+      d.innerHTML = `<h3>📅 נוסף ליומן העסק</h3><div class="cal-date"><div class="cal-day"><span>שלישי</span><b>${Number(dd)}</b></div><div><p class="mail-subject">${esc(a.service)} · ${esc(a.dogName)}</p><p><bdi dir="ltr">${a.start}–${a.end}</bdi> · ${esc(a.customerName)}</p><p>מספר אישור <code>${a.id}</code></p></div></div>`;
+    } else {
+      d.innerHTML = `<h3>✉️ מייל האישור שהסוכן כתב</h3><p class="mail-subject">${esc(data.email.subject)}</p><p class="mail-body">${esc(data.email.body)}</p><span class="attach">📎 invite.ics · זימון ליומן</span><br><span class="honest-tag">נשמר בתיבת הדואר היוצא, לא נשלח</span>`;
+    }
+    e.el = d; cards.append(d);
+  }
+}
+const feedEntries = timeline.filter((e) => e.kind === "entry");
+
+// ---------- render the state at time t (deterministic, so the video export matches) ----------
+
+function ease(x) { return x <= 0 ? 0 : x >= 1 ? 1 : 1 - Math.pow(1 - x, 3); }
+function show(el, at, now, dy = 8) {
+  const p = ease((now - at) / 260);
+  el.style.display = now >= at ? "" : "none";
+  el.style.opacity = p;
+  el.style.transform = `translateY(${(1 - p) * dy}px)`;
+}
+
+function renderAt(now) {
+  for (const e of timeline) {
+    if (e.kind === "msg") show(e.el, e.at, now);
+    if (e.kind === "typing") {
+      const on = now >= e.at && now < e.until;
+      e.el.style.display = on ? "" : "none";
+      e.el.querySelectorAll("i").forEach((dot, k) => (dot.style.opacity = 0.35 + 0.65 * Math.max(0, Math.sin((now / 180) - k * 0.9))));
+    }
+    if (e.kind === "card") show(e.el, e.at, now, 14);
+    if (e.kind === "press") {
+      const btn = timeline.find((x) => x.kind === "msg" && x.ref === e.ref)?.el.querySelector(".approval-buttons span");
+      if (btn) btn.classList.toggle("pressed", now >= e.at);
+    }
+  }
+  // keep only the latest few entries in the feed, so it never overflows the frame
+  const visible = feedEntries.filter((e) => now >= e.at);
+  const keep = new Set(visible.slice(-4));
+  for (const e of feedEntries) { if (keep.has(e)) show(e.el, e.at, now); else e.el.style.display = "none"; }
+  const composing = timeline.filter((e) => e.kind === "compose" && now >= e.at && now < e.until + 150).pop();
+  if (composing) {
+    const chars = Math.floor(composing.text.length * Math.min(1, (now - composing.at) / (composing.until - composing.at)));
+    composer.textContent = composing.text.slice(0, chars) || "הודעה";
+    composer.style.color = chars ? "#111b21" : "";
+  } else { composer.textContent = "הודעה"; composer.style.color = ""; }
+  chat.scrollTop = chat.scrollHeight;
+}
+window.renderAt = renderAt;
+window.TOTAL = TOTAL;
+
+// ---------- playback ----------
+
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let start = performance.now(), paused = false, pausedAt = 0;
+const playBtn = document.getElementById("play");
+function frame(nowMs) {
+  if (paused) return;
+  let elapsed = nowMs - start;
+  if (elapsed > TOTAL) { start = nowMs; elapsed = 0; }
+  renderAt(elapsed);
+  requestAnimationFrame(frame);
+}
+playBtn.addEventListener("click", () => {
+  paused = !paused;
+  playBtn.textContent = paused ? "המשך" : "עצירה";
+  if (paused) pausedAt = performance.now() - start;
+  else { start = performance.now() - pausedAt; requestAnimationFrame(frame); }
+});
+document.getElementById("restart").addEventListener("click", () => {
+  start = performance.now(); pausedAt = 0;
+  if (paused) { paused = false; playBtn.textContent = "עצירה"; requestAnimationFrame(frame); }
+});
+if (capture) renderAt(0);
+else if (reduce) { renderAt(TOTAL); paused = true; playBtn.textContent = "הפעלה"; pausedAt = 0; }
+else requestAnimationFrame(frame);
+</script>
+</body>
+</html>

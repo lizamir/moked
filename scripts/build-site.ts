@@ -73,4 +73,32 @@ const html = template
   .replace("/*__SCRIPT__*/", () => safe(bundle.outputFiles[0]!.text));
 
 await writeFile(path.join(ROOT, "docs/index.html"), html);
+
+// ---------- docs/demo.html: the recorded conversation, replayed ----------
+
+/** Decode the text body and the Hebrew subject of a .eml the outbox wrote. */
+function readEml(eml: string) {
+  const subject = eml.match(/^Subject: =\?UTF-8\?B\?(.+?)\?=/m)?.[1];
+  const textPart = eml.split(/\r\n\r\n/)[eml.includes("multipart/mixed") ? 2 : 1] ?? "";
+  return {
+    subject: subject ? Buffer.from(subject, "base64").toString("utf8") : (eml.match(/^Subject: (.+)$/m)?.[1] ?? ""),
+    body: Buffer.from(textPart.split(/\r\n--/)[0]!.replace(/\s+/g, ""), "base64").toString("utf8"),
+  };
+}
+
+const recording = JSON.parse(await readFile(path.join(ROOT, "site/demo-conversation.json"), "utf8")) as {
+  transcript: unknown[];
+  appointments: { id: string; serviceId: string; date: string; start: string; end: string; customerName: string; dogName: string }[];
+  emails: string[];
+};
+const appointment = recording.appointments[0]!;
+const service = (await import("../src/services/business.ts")).loadProfile().then((p) => p.services.find((s) => s.id === appointment.serviceId)!.name);
+const demo = {
+  transcript: recording.transcript,
+  appointment: { ...appointment, service: await service },
+  email: readEml(recording.emails[0]!),
+};
+const demoTemplate = await readFile(path.join(ROOT, "site/demo.html"), "utf8");
+await writeFile(path.join(ROOT, "docs/demo.html"), demoTemplate.replace("__DEMO_DATA__", () => safe(JSON.stringify(demo))));
+console.log(`docs/demo.html: ${recording.transcript.length} messages replayed`);
 console.log(`docs/index.html: ${(html.length / 1024).toFixed(0)} KB, ${presets.length} questions, ${kb.chunks.length} passages`);

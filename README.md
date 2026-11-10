@@ -4,7 +4,11 @@ A business AI agent, written in TypeScript. It answers customers from the busine
 
 The demo business is "Parva" (פרווה), a fictional dog grooming salon and boarding kennel. Customers write in Hebrew.
 
-**Not a programmer?** Open **[lizhajage.co.il/moked](https://lizhajage.co.il/moked/)**: a Hebrew page that explains the project step by step and runs the real knowledge-base search in your browser.
+**Not a programmer?** Open **[lizhajage.co.il/moked](https://lizhajage.co.il/moked/)**: a Hebrew page that explains the project step by step and runs the real knowledge-base search in your browser. A full guide to the code, in Hebrew, is in [GUIDE-HE.md](GUIDE-HE.md).
+
+![A recorded conversation: the customer asks a price, books an appointment after approving it, and gets a confirmation email with a calendar invite](docs/media/moked-demo.gif)
+
+A real conversation with the agent, recorded once and replayed ([interactive version](https://lizhajage.co.il/moked/demo.html)). On the right, what the customer sees; on the left, which tools the agent ran and where it stopped for approval.
 
 ```mermaid
 flowchart LR
@@ -49,7 +53,8 @@ src/
   services/            The business's systems. Each one owns its own rules.
     business.ts          Load and validate the profile; date helpers
     appointments.ts      Appointment book: opening hours, slots, conflicts
-    outbox.ts            Mailer interface + a development mailer that writes files
+    outbox.ts            Mailer interface + a development mailer that writes .eml files
+    calendar-invite.ts   The .ics calendar invite attached to booking confirmations
     request-log.ts       Requests for staff follow-up, as CSV
   tools/               What the agent is allowed to call. Thin wrappers over services.
     types.ts             A tool is "read" or "action"; actions need approval
@@ -63,7 +68,10 @@ src/
     prompt.ts            System prompt, built from the business profile
     index.ts             Start a fully wired conversation
   interfaces/          Ways to reach the agent
+    sessions.ts          Many people, one conversation each; holds the agent paused until a "yes" arrives
     cli.ts               Terminal chat
+    web/                 Browser chat on this computer (npm run web)
+    whatsapp/            WhatsApp webhook and sender (npm run whatsapp, see docs/whatsapp.md)
     mcp-server.ts        The knowledge base as an MCP server
 
 evals/                 20 scenarios and the code that grades them
@@ -110,7 +118,7 @@ What code adds over the canvas: the approval and booking rules are enforced rath
 
 ```bash
 npm install
-npm test                 # 43 tests, no API key needed
+npm test                 # 52 tests, no API key needed
 npm run eval:retrieval   # knowledge-base search quality
 ```
 
@@ -120,7 +128,8 @@ To talk to the agent you need a Claude API key. Copy `.env.example` to `.env` an
 
 ```bash
 cp .env.example .env     # then edit .env and set ANTHROPIC_API_KEY
-npm run chat             # interactive conversation in the terminal
+npm run chat             # conversation in the terminal
+npm run web              # conversation in the browser: http://localhost:3100
 npm run eval:agent       # the 20 scenarios, end to end
 ```
 
@@ -179,6 +188,7 @@ On this knowledge base the embedding model does most of the work: customers phra
 | Agent loop and approval gate | Tested against a scripted fake model |
 | MCP server | Tested over stdio |
 | Live conversation with Claude, web search, the 20 scenarios end to end | Run: 19 of 20 passed on the first full run (see below) |
+| Browser chat, WhatsApp webhook | Tested with a stand-in agent and fake Meta requests. The WhatsApp side has not been connected to a real number; the steps are in [docs/whatsapp.md](docs/whatsapp.md). |
 | Email delivery | Not connected. `FileOutbox` writes `.eml` files and tells the agent the mail was not delivered, so it does not claim otherwise. A Gmail or SMTP mailer implements the same `Mailer` interface. |
 
 ## Using your own business

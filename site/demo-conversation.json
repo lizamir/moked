@@ -1,0 +1,120 @@
+{
+  "recordedAt": "2026-11-10T20:39:28.437Z",
+  "clock": {
+    "date": "2026-11-15",
+    "time": "10:00"
+  },
+  "business": "פרווה",
+  "transcript": [
+    {
+      "from": "customer",
+      "text": "היי! כמה עולה מקלחת וייבוש לכלב?"
+    },
+    {
+      "from": "agent",
+      "kind": "text",
+      "text": "היי! מקלחת וייבוש עולה **130 ₪**, וזה המחיר לכל גודל של כלב. הטיפול כולל מקלחת עם שמפו שמתאים לסוג הפרווה, ייבוש והברשה, ונמשך כשעה [services-prices#1].\n\nכדאי לדעת שיש תוספות אפשריות [services-prices#4]:\n- **פירוק קשרים** בפרווה סבוכה מאוד: עוד 60 ₪\n- **שמפו נגד פרעושים**: עוד 40 ₪\n\nאם יש צורך בתוספת, מודיעים לכם לפני שמתחילים, ולא תחויבו עליה בלי הסכמה.\n\nרוצים שאבדוק תורים פנויים? באיזה תאריך נוח לכם?",
+      "steps": [
+        {
+          "tool": "search_knowledge_base",
+          "kind": "read",
+          "input": {
+            "query": "מחיר מקלחת וייבוש"
+          },
+          "outcome": "ok",
+          "result": "<passage id=\"services-prices#1\" document=\"טיפולים ומחירים במספרה\" section=\"מקלחת וייבוש\">\nמקלחת עם שמפו שמתאים לסוג הפרווה, ייבוש והברשה. הטיפול נמשך כשעה ועולה 130 ₪ לכל גודל של כלב.\n</passage>\n\n<passage id=\"services-prices#2\" document=\"טיפולים ומחירים במספרה\" section=\"תספורת מלאה\">\nתספורת מלאה כוללת מקלחת, ייבוש, תספורת לכל הגוף וקיצוץ ציפורניים. המחיר נקבע לפי משקל הכלב. כלב קטן, עד 10 ק\"ג: 190 ₪, כשעה וחצי. כלב בינוני, 10 עד 25 ק\"ג: 240 ₪, כשעתיים. כלב גדול, מעל 25 ק\"ג: 310 ₪, כשעתיים וחצי.\n</passage>\n\n<passage id=\"services-prices#4\" document=\"טיפולים ומחירים במספרה\" section=\"תוספות\">\nפרווה סבוכה מאוד שדורשת פירוק קשרים מוסיפה 60 ₪ למחיר הטיפול. רחצה בשמפו נגד פרעושים מוסיפה 40 ₪. על כל תוספת מודיעים לבעלים לפני שמתחילים, ולא מחייבים בלי הסכמה.\n</passage>\n\n<passage id=\"services-prices#3\" document=\"טיפולים ומחירים במספרה\" section=\"קיצוץ ציפורניים\">\nקיצוץ ציפורניים בלבד נמשך כחצי שעה ועולה 50 ₪. בתספורת מלאה הקיצוץ כבר כלול במחיר.\n</passage>\n\n<passage id=\"puppies#2\" document=\"גורים\" section=\"מפגש היכרות\">\nלגור שמגיע בפעם הראשונה מומלץ מפגש היכרות: חצי שעה שבה הוא מכיר את המקום, את רעש המייבש ואת המגע במסרק, בלי תספורת מלאה. המפגש עולה 90 ₪.\n</passage>"
+        }
+      ]
+    },
+    {
+      "from": "customer",
+      "text": "מעולה. אפשר לקבוע ליום שלישי ב-11:00? אני דנה, והכלב שלי לוקי"
+    },
+    {
+      "from": "agent",
+      "kind": "approval",
+      "text": "לפני שאני ממשיך, צריך את האישור שלך:\nלקבוע תור: מקלחת וייבוש, בתאריך 2026-11-17 בשעה 11:00, על שם דנה (לוקי)\nלאשר?"
+    },
+    {
+      "from": "customer",
+      "text": "כן"
+    },
+    {
+      "from": "agent",
+      "kind": "text",
+      "text": "דנה, התור נקבע! 🐾\n\n- **טיפול:** מקלחת וייבוש\n- **מתי:** יום שלישי, 17.11.2026, 11:00–12:00\n- **כלב:** לוקי\n- **מחיר:** 130 ₪\n- **מספר אישור:** apt-0001\n\nאם תרצי, אשלח לך אישור במייל עם הזמנה ליומן. צריך רק כתובת מייל.",
+      "steps": [
+        {
+          "tool": "check_availability",
+          "kind": "read",
+          "input": {
+            "service_id": "bath",
+            "date": "2026-11-17"
+          },
+          "outcome": "ok",
+          "result": "Free start times on 2026-11-17: 09:00, 09:30, 10:00, 10:30, 11:00, 11:30, 12:00, 12:30, 13:00, 13:30, 14:00, 14:30, 15:00, 15:30, 16:00, 16:30, 17:00"
+        },
+        {
+          "tool": "book_appointment",
+          "kind": "action",
+          "input": {
+            "service_id": "bath",
+            "date": "2026-11-17",
+            "time": "11:00",
+            "customer_name": "דנה",
+            "dog_name": "לוקי"
+          },
+          "outcome": "ok",
+          "result": "Booked. Confirmation apt-0001: מקלחת וייבוש, 2026-11-17 11:00-12:00, 130 ILS, for דנה (לוקי)."
+        }
+      ]
+    },
+    {
+      "from": "customer",
+      "text": "תשלחו לי אישור עם זימון ליומן למייל dana@example.com"
+    },
+    {
+      "from": "agent",
+      "kind": "approval",
+      "text": "לפני שאני ממשיך, צריך את האישור שלך:\nלשלוח מייל אל dana@example.com בנושא \"אישור תור – מקלחת וייבוש ללוקי בפרווה\", עם זימון ליומן\nלאשר?"
+    },
+    {
+      "from": "customer",
+      "text": "כן"
+    },
+    {
+      "from": "agent",
+      "kind": "text",
+      "text": "דנה, הכנתי את מייל האישור ל-dana@example.com עם הזימון ליומן, אבל הוא **לא נשלח**. כרגע אין לנו חיבור לשרת מייל, אז הוא נשאר בתיבת הדואר היוצא ולא יגיע אלייך.\n\nהתור עצמו קבוע. כדאי לשמור את הפרטים:\n- **מקלחת וייבוש ללוקי**\n- **יום שלישי, 17.11.2026, 11:00–12:00**\n- **130 ₪**\n- **מספר אישור:** apt-0001\n\nאם תרצי, אוכל להעביר לצוות בקשה שישלחו לך את האישור בעצמם.",
+      "steps": [
+        {
+          "tool": "send_email",
+          "kind": "action",
+          "input": {
+            "to": "dana@example.com",
+            "subject": "אישור תור – מקלחת וייבוש ללוקי בפרווה",
+            "body": "היי דנה,\n\nהתור של לוקי בפרווה נקבע:\n\nטיפול: מקלחת וייבוש (מקלחת עם שמפו שמתאים לסוג הפרווה, ייבוש והברשה)\nתאריך: יום שלישי, 17.11.2026\nשעה: 11:00–12:00\nמחיר: 130 ₪\nמספר אישור: apt-0001\n\nמצורפת הזמנה ליומן.\n\nלתשומת לבך: פירוק קשרים בפרווה סבוכה מאוד מוסיף 60 ₪, ושמפו נגד פרעושים מוסיף 40 ₪. על כל תוספת מודיעים לך לפני שמתחילים, ולא תחויבי בלי הסכמה.\n\nנתראה!\nפרווה – מספרה ופנסיון לכלבים",
+            "invite_appointment_id": "apt-0001"
+          },
+          "outcome": "ok",
+          "result": "Email to dana@example.com with a calendar invite attached was written to the outbox (mail-1794343164110-1) but NOT delivered: this installation has no mail server connected. Tell the customer the email was prepared, not that it arrived."
+        }
+      ]
+    }
+  ],
+  "appointments": [
+    {
+      "id": "apt-0001",
+      "serviceId": "bath",
+      "date": "2026-11-17",
+      "start": "11:00",
+      "end": "12:00",
+      "customerName": "דנה",
+      "dogName": "לוקי",
+      "createdAt": "2026-11-15T10:00"
+    }
+  ],
+  "emails": [
+    "From: hello@parva.example\r\nTo: dana@example.com\r\nSubject: =?UTF-8?B?15DXmdep15XXqCDXqteV16gg4oCTINee16fXnNeX16og15XXmdeZ15HXldepINec15zXlden15kg15HXpNeo15XXldeU?=\r\nMIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary=\"moked-mail-1794343164110-1\"\r\n\r\n--moked-mail-1794343164110-1\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n15TXmdeZINeT16DXlCwKCteU16rXldeoINep15wg15zXlden15kg15HXpNeo15XXldeUINeg16fX\r\nkdeiOgoK15jXmdek15XXnDog157Xp9ec15fXqiDXldeZ15nXkdeV16kgKNee16fXnNeX16og16LX\r\nnSDXqdee16TXlSDXqdee16rXkNeZ150g15zXodeV15Ig15TXpNeo15XXldeULCDXmdeZ15HXldep\r\nINeV15TXkdeo16nXlCkK16rXkNeo15nXmjog15nXldedINep15zXmdep15ksIDE3LjExLjIwMjYK\r\n16nXoteUOiAxMTowMOKAkzEyOjAwCtee15fXmdeoOiAxMzAg4oKqCtee16HXpNeoINeQ15nXqdeV\r\n16g6IGFwdC0wMDAxCgrXntem15XXqNek16og15TXltee16DXlCDXnNeZ15XXntefLgoK15zXqtep\r\n15XXnteqINec15HXmjog16TXmdeo15XXpyDXp9ep16jXmdedINeR16TXqNeV15XXlCDXodeR15XX\r\nm9eUINee15DXldeTINee15XXodeZ16MgNjAg4oKqLCDXldep157XpNeVINeg15LXkyDXpNeo16LX\r\nldep15nXnSDXnteV16HXmdejIDQwIOKCqi4g16LXnCDXm9ecINeq15XXodek16og157XldeT15nX\r\noteZ150g15zXmiDXnNek16DXmSDXqdee16rXl9eZ15zXmdedLCDXldec15Ag16rXl9eV15nXkdeZ\r\nINeR15zXmSDXlNeh15vXnteULgoK16DXqteo15DXlCEK16TXqNeV15XXlCDigJMg157Xodek16jX\r\nlCDXldek16DXodeZ15XXnyDXnNeb15zXkdeZ150=\r\n--moked-mail-1794343164110-1\r\nContent-Type: text/calendar; charset=UTF-8; method=PUBLISH; name=\"invite.ics\"\r\nContent-Disposition: attachment; filename=\"invite.ics\"\r\nContent-Transfer-Encoding: base64\r\n\r\nQkVHSU46VkNBTEVOREFSDQpWRVJTSU9OOjIuMA0KUFJPRElEOi0vL21va2VkLy9hcHBvaW50bWVu\r\ndHMvL0hFDQpNRVRIT0Q6UFVCTElTSA0KQkVHSU46VkVWRU5UDQpVSUQ6YXB0LTAwMDEtMjAyNi0x\r\nMS0xN0Btb2tlZA0KRFRTVEFNUDoyMDI2MTExNVQxMDAwMDANCkRUU1RBUlQ7VFpJRD1Bc2lhL0pl\r\ncnVzYWxlbToyMDI2MTExN1QxMTAwMDANCkRURU5EO1RaSUQ9QXNpYS9KZXJ1c2FsZW06MjAyNjEx\r\nMTdUMTIwMDAwDQpTVU1NQVJZOtee16fXnNeX16og15XXmdeZ15HXldepOiDXnNeV16fXmVwsINek\r\n16jXldeV15QNCkxPQ0FUSU9OOteo15fXldeRINeU15DXnNeV158gOFwsINen16jXmdeZ16og15PX\r\nldeS157XlA0KREVTQ1JJUFRJT04616rXldeoIGFwdC0wMDAxINei15wg16nXnSDXk9eg15QuINee\r\n15fXmdeoOiAxMzAg4oKqLiDXkdeZ15jXldecINeX15nXoNedINei15MgMjQg16nXoteV16og15zX\r\npNeg15kg15TXqteV16guDQpFTkQ6VkVWRU5UDQpFTkQ6VkNBTEVOREFSDQo=\r\n--moked-mail-1794343164110-1--\r\n"
+  ]
+}

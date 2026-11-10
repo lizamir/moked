@@ -5,7 +5,8 @@ import path from "node:path";
 import { test } from "node:test";
 import { AppointmentBook, BookingError } from "../src/services/appointments.ts";
 import { addDays, loadProfile, weekdayOf } from "../src/services/business.ts";
-import { FileOutbox } from "../src/services/outbox.ts";
+import { appointmentInvite } from "../src/services/calendar-invite.ts";
+import { FileOutbox, toMime } from "../src/services/outbox.ts";
 import { RequestLog } from "../src/services/request-log.ts";
 
 const profile = await loadProfile();
@@ -66,7 +67,10 @@ test("the development mailer writes a file and reports that nothing was delivere
   const result = await outbox.send({ to: "noa@example.com", subject: "אישור תור", body: "התור נקבע." });
   assert.equal(result.delivered, false);
   const [file] = await readdir(dir);
-  assert.match(await readFile(path.join(dir, file!), "utf8"), /To: noa@example\.com\nSubject: אישור תור\n\nהתור נקבע\./);
+  const eml = await readFile(path.join(dir, file!), "utf8");
+  assert.match(eml, /To: noa@example\.com\r\n/);
+  assert.match(eml, /Subject: =\?UTF-8\?B\?/); // Hebrew subject, encoded for mail clients
+  assert.ok(eml.includes(Buffer.from("התור נקבע.").toString("base64")));
   await assert.rejects(outbox.send({ to: "not-an-email", subject: "x", body: "y" }), /לא תקינה/);
 });
 
@@ -79,4 +83,21 @@ test("the request log is a CSV that survives quotes, commas and formulas", async
   assert.equal(header, "time,customer_name,contact,topic,details");
   assert.equal(first, '"2026-11-15 10:00","מיכל","050-5550123","פנסיון","רקס, ""גדול"", 1 עד 5 בדצמבר"');
   assert.match(second!, /"'=HYPERLINK\(1\)"/);
+});
+
+test("a booking confirmation can carry a calendar invite", async () => {
+  const book = await newBook();
+  const appointment = await book.book({ serviceId: "nails", date: "2026-11-16", time: "10:00", ...dana });
+  const ics = appointmentInvite(appointment, book.service("nails"), profile, "2026-11-15T10:00");
+  assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
+  assert.match(ics, /DTSTART;TZID=Asia\/Jerusalem:20261116T100000\r\n/);
+  assert.match(ics, /DTEND;TZID=Asia\/Jerusalem:20261116T103000\r\n/);
+  assert.match(ics, /SUMMARY:קיצוץ ציפורניים: לוקי\\, פרווה/); // the comma is escaped
+  assert.equal(await book.get("apt-0001").then((a) => a.start), "10:00");
+  await assert.rejects(book.get("apt-9999"), /אין תור/);
+
+  const eml = toMime({ to: "dana@example.com", subject: "אישור", body: "נתראה", attachments: [{ filename: "invite.ics", contentType: "text/calendar", content: ics }] }, "hello@parva.example", "m1");
+  assert.match(eml, /Content-Type: multipart\/mixed; boundary="moked-m1"/);
+  assert.match(eml, /Content-Disposition: attachment; filename="invite.ics"/);
+  assert.match(eml, /--moked-m1--\r\n$/);
 });

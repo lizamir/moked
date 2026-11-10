@@ -55,6 +55,12 @@ export class AppointmentBook {
     }
   }
 
+  async get(id: string): Promise<Appointment> {
+    const appointment = (await this.list()).find((a) => a.id === id);
+    if (!appointment) throw new BookingError(`אין תור עם מספר אישור '${id}'.`);
+    return appointment;
+  }
+
   /** Start times on which the service fits entirely inside opening hours and overlaps no existing appointment. */
   async freeSlots(date: string, serviceId: string): Promise<string[]> {
     const service = this.service(serviceId);

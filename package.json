@@ -15,7 +15,9 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p site",
     "build:site": "tsx scripts/build-site.ts",
     "chat": "tsx --env-file-if-exists=.env src/interfaces/cli.ts",
-    "eval:agent": "tsx --env-file-if-exists=.env evals/agent.ts"
+    "eval:agent": "tsx --env-file-if-exists=.env evals/agent.ts",
+    "web": "tsx --env-file-if-exists=.env src/interfaces/web/server.ts",
+    "whatsapp": "tsx --env-file-if-exists=.env src/interfaces/whatsapp/server.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.7.0",
