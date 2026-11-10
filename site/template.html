@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>מוקד: עוזר AI בעברית שעונה רק ממה שקרא</title>
-<meta name="description" content="מוקד הוא עוזר בעברית שעונה על שאלות על בינה מלאכותית מתוך מדריך, מציין מקור לכל משפט ואומר לא יודע כשאין תשובה. הסבר פשוט והדגמה חיה של החיפוש.">
-<meta property="og:title" content="מוקד: עוזר AI בעברית שעונה רק ממה שקרא">
-<meta property="og:description" content="הסבר פשוט והדגמה חיה: איך שאלה בעברית הופכת לתשובה עם מקורות.">
+<title>מוקד: סוכן AI לעסק, שלא פועל בלי אישור</title>
+<meta name="description" content="מוקד הוא סוכן AI לעסק קטן: עונה ממאגר הידע של העסק, מחפש באינטרנט כשחסר מידע, קובע תורים ושולח מיילים, ותמיד מבקש אישור לפני פעולה. הסבר פשוט והדגמה חיה.">
+<meta property="og:title" content="מוקד: סוכן AI לעסק, שלא פועל בלי אישור">
+<meta property="og:description" content="עונה ממאגר הידע, מחפש באינטרנט, קובע תורים ושולח מיילים. הסבר פשוט והדגמה חיה.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -110,6 +110,15 @@ section { padding-block: 56px; }
 .tag--multi { background: var(--accent-wash); color: var(--accent); }
 .tag--unanswerable, .tag--injection, .tag--trap { background: var(--warn-wash); color: var(--warn); }
 .tag--right { background: var(--good-wash); color: var(--good); }
+.tag--web { background: #e4eefb; color: #1d4f91; }
+.tag--action, .tag--kb { background: var(--accent-wash); color: var(--accent); }
+.tag--boundary { background: var(--warn-wash); color: var(--warn); }
+.answer__tools { margin-block-start: 12px; font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { padding: 2px 12px; border-radius: 999px; font-weight: 700; font-size: 0.9rem; }
+.chip--yes { background: #cfeedd; color: #12402b; }
+.chip--no { background: rgba(255, 255, 255, 0.1); color: var(--on-deep); text-decoration: line-through; }
+.gate { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); align-items: start; }
+.gate pre { margin: 0; direction: ltr; text-align: left; background: var(--deep); color: var(--on-deep); border-radius: 18px; padding: 18px; overflow-x: auto; font-size: 0.85rem; line-height: 1.6; }
 .free { display: flex; flex-wrap: wrap; gap: 10px; margin-block-start: 18px; }
 .free label { inline-size: 100%; font-weight: 700; }
 .free input {
@@ -202,47 +211,44 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
 
 <main id="main">
   <div class="wrap hero">
-    <h1>עוזר AI שעונה רק ממה <mark>שקרא</mark></h1>
-    <p class="hero__lead">מוקד עונה בעברית על שאלות על בינה מלאכותית. הוא לא עונה מהזיכרון: הוא מחפש במדריך, מציין מאיפה לקח כל משפט, ואומר "לא יודע" כשהתשובה לא כתובה שם.</p>
+    <h1>סוכן AI לעסק, שלא פועל בלי <mark>אישור</mark></h1>
+    <p class="hero__lead">מוקד הוא עוזר דיגיטלי לעסק קטן. הוא עונה ללקוחות מתוך מאגר הידע של העסק, מחפש באינטרנט כשחסר מידע, קובע תורים ושולח מיילים. לפני כל פעולה הוא עוצר ומבקש אישור. בהדגמה הוא עובד אצל "פרווה", מספרה ופנסיון לכלבים.</p>
     <div class="hero__actions">
       <a class="btn" href="#demo">לנסות את ההדגמה</a>
       <a class="btn btn--ghost" href="#how">איך זה עובד</a>
     </div>
     <ul class="chips" aria-label="הפרויקט במספרים">
-      <li><b data-count="docs"></b> מסמכים במדריך</li>
+      <li><b data-count="docs"></b> מסמכים במאגר הידע</li>
       <li><b data-count="chunks"></b> קטעים לחיפוש</li>
-      <li><b data-count="questions"></b> שאלות מבחן</li>
+      <li><b>6</b> כלים</li>
+      <li><b data-count="questions"></b> תרחישי בדיקה</li>
     </ul>
   </div>
 
-  <section aria-labelledby="why-title">
+  <section aria-labelledby="can-title">
     <div class="wrap">
-      <h2 id="why-title">הבעיה: צ'אט רגיל עונה גם כשהוא לא יודע</h2>
-      <p class="lead">מודל שפה מרכיב תשובה שנשמעת הגיונית. כשאין לו מידע הוא לא נעצר, וכך נולדות תשובות בטוחות ושגויות. הפתרון של מוקד פשוט: קודם קוראים, אחר כך עונים.</p>
+      <h2 id="can-title">מה הסוכן יודע לעשות</h2>
+      <p class="lead">צ'אט רגיל רק מדבר. סוכן גם פועל: יש לו כלים, והוא מחליט בעצמו איזה כלי מתאים לכל פנייה.</p>
       <div class="cards">
-        <article class="card card--bad">
-          <h3>צ'אט רגיל: מבחן מהזיכרון</h3>
-          <p>עונה לפי מה שזכור לו מהאימון. אי אפשר לדעת מאיפה הגיעה התשובה, והוא ימציא מספר או מקור אם זה נשמע סביר.</p>
-        </article>
-        <article class="card card--good">
-          <h3>מוקד: מבחן בספר פתוח</h3>
-          <p>מחפש קודם במדריך, מקבל את הקטעים המתאימים, ועונה רק מתוכם. ליד כל משפט מופיע המקור, ואם אין קטע מתאים הוא אומר שאין לו תשובה.</p>
-        </article>
+        <article class="card"><h3>לענות ממאגר הידע</h3><p>מחירים, שעות, חיסונים נדרשים, מדיניות ביטולים. הוא מחפש במסמכים של העסק ומציין מאיפה לקח כל פרט.</p></article>
+        <article class="card"><h3>לחפש באינטרנט</h3><p>רק לשאלות כלליות על טיפוח כלבים שהמאגר לא עונה עליהן, ותמיד עם ציון שהמידע הגיע מהאינטרנט.</p></article>
+        <article class="card"><h3>לבצע פעולות</h3><p>לקבוע תור ביומן, לשלוח מייל ללקוח, ולרשום פנייה שהצוות צריך לחזור אליה.</p></article>
+        <article class="card"><h3>לדעת מה לא לעשות</h3><p>לא לנחש מחיר, לא לתת ייעוץ רפואי, לא לענות על מזג האוויר, ולא לציית לטקסט חשוד שמצא במסמך.</p></article>
       </div>
     </div>
   </section>
 
   <section id="demo" aria-labelledby="demo-title">
     <div class="wrap">
-      <h2 id="demo-title">ההדגמה: לעקוב אחרי שאלה אחת</h2>
-      <p class="lead">בוחרים שאלה ורואים מה קורה לה בדרך לתשובה. החיפוש שמוצג כאן אמיתי: אותו קוד של הפרויקט רץ עכשיו בדפדפן שלכם.</p>
+      <h2 id="demo-title">ההדגמה: לעקוב אחרי פנייה אחת</h2>
+      <p class="lead">בוחרים פנייה של לקוח ורואים מה קורה לה. החיפוש במאגר שמוצג כאן אמיתי: אותו קוד של הפרויקט רץ עכשיו בדפדפן שלכם.</p>
 
       <div class="demo">
-        <h3 id="pick-title">20 שאלות המבחן</h3>
+        <h3 id="pick-title">20 תרחישי הבדיקה</h3>
         <div class="questions" id="questions" role="group" aria-labelledby="pick-title"></div>
         <form class="free" id="free">
-          <label for="free-input">או שאלה משלכם על AI</label>
-          <input id="free-input" type="text" autocomplete="off" placeholder="למשל: מה זה טוקן?">
+          <label for="free-input">או שאלה משלכם על פרווה</label>
+          <input id="free-input" type="text" autocomplete="off" placeholder="למשל: מה מביאים לפנסיון?">
           <button class="btn" type="submit">לחפש</button>
         </form>
 
@@ -250,14 +256,14 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
           <p class="asked" id="asked"></p>
 
           <div class="step">
-            <div class="step__head"><span class="step__n">1</span><h3>מפרקים את השאלה למילים</h3></div>
-            <p class="step__why">בעברית אותיות כמו ו', ב', ה' נדבקות למילה. כדי ש"במסלול" ימצא גם "מסלול", הקוד מקלף אותן ומחפש גם את הצורה הקצרה. מילים נפוצות כמו "מה" או "של" לא עוזרות לחיפוש, ולכן מדלגים עליהן. הצורות הקצרות לא תמיד מילים אמיתיות, וזה בסדר: הן רק צריכות להתאים לאותה צורה במסמכים.</p>
+            <div class="step__head"><span class="step__n">1</span><h3>מפרקים את הפנייה למילים</h3></div>
+            <p class="step__why">בעברית אותיות כמו ו', ב', ה' נדבקות למילה. כדי ש"בפנסיון" ימצא גם "פנסיון", הקוד מקלף אותן ומחפש גם את הצורה הקצרה. מילים נפוצות כמו "מה" או "של" לא עוזרות לחיפוש, ולכן מדלגים עליהן. הצורות הקצרות לא תמיד מילים אמיתיות, וזה בסדר: הן רק צריכות להתאים לאותה צורה במסמכים.</p>
             <div class="words" id="words"></div>
           </div>
 
           <div class="step">
-            <div class="step__head"><span class="step__n">2</span><h3>שני חיפושים במקביל</h3></div>
-            <p class="step__why">חיפוש אחד מוצא קטעים עם אותן מילים. חיפוש שני מוצא קטעים עם אותה משמעות, גם אם המילים שונות. לכל אחד חולשות משלו, ולכן מריצים את שניהם. לחיצה על קטע פותחת את הטקסט שלו.</p>
+            <div class="step__head"><span class="step__n">2</span><h3>שני חיפושים במאגר הידע</h3></div>
+            <p class="step__why">חיפוש אחד מוצא קטעים עם אותן מילים. חיפוש שני מוצא קטעים עם אותה משמעות, גם אם המילים שונות. לחיצה על קטע פותחת את הטקסט שלו.</p>
             <div class="cols">
               <div><h4>לפי מילים</h4><ol class="hits" id="hits-keyword"></ol></div>
               <div><h4>לפי משמעות</h4><ol class="hits" id="hits-meaning"></ol></div>
@@ -266,16 +272,16 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
 
           <div class="step">
             <div class="step__head"><span class="step__n">3</span><h3>מאחדים לרשימה אחת</h3></div>
-            <p class="step__why">קטע ששני החיפושים דירגו גבוה עולה לראש. חמשת הקטעים האלה הם כל מה שהסוכן יקבל לקריאה.</p>
+            <p class="step__why">קטע ששני החיפושים דירגו גבוה עולה לראש. חמשת הקטעים האלה הם מה שהסוכן מקבל לקריאה.</p>
             <p class="note" id="final-note"></p>
             <ol class="hits" id="hits-final"></ol>
           </div>
 
           <div class="step">
-            <div class="step__head"><span class="step__n">4</span><h3>הסוכן קורא ועונה</h3></div>
-            <p class="step__why">הסוכן הוא מודל שפה (Claude) שמקבל את הקטעים ואת ההנחיה לענות רק מתוכם ולציין מקור. אם הקטעים לא מספיקים, הוא יכול לחפש שוב בניסוח אחר.</p>
+            <div class="step__head"><span class="step__n">4</span><h3>הסוכן מחליט מה לעשות</h3></div>
+            <p class="step__why">הסוכן הוא מודל שפה (Claude) שקורא את הפנייה ואת הקטעים, ומחליט: לענות, לחפש שוב, לפנות לאינטרנט, או להפעיל כלי פעולה. המבחן בודק שהוא בחר נכון.</p>
             <div class="answer" id="answer"></div>
-            <p class="honest">חשוב לדעת: שלב 4 לא רץ בעמוד הזה, כי הוא צריך מפתח API בתשלום. מה שמוצג הוא התשובה שהמבחן מצפה לה, מתוך קובץ הבדיקות של הפרויקט. שלבים 1 עד 3 אמיתיים.</p>
+            <p class="honest">חשוב לדעת: שלב 4 לא רץ בעמוד הזה, כי הוא צריך מפתח API בתשלום. מה שמוצג הוא ההתנהגות שהמבחן מצפה לה, מתוך קובץ התרחישים של הפרויקט. שלבים 1 עד 3 אמיתיים.</p>
           </div>
         </div>
       </div>
@@ -285,24 +291,44 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
   <section class="deep" id="how" aria-labelledby="how-title">
     <div class="wrap">
       <h2 id="how-title">איך זה עובד, בחמישה צעדים</h2>
-      <p class="lead">לשיטה הזו קוראים RAG: לתת למודל לקרוא לפני שהוא עונה.</p>
+      <p class="lead">הסוכן עובד בסבבים: מבקש כלי, מקבל תוצאה, ומחליט מה הצעד הבא.</p>
       <ol class="flow">
-        <li><h3>חותכים את המדריך</h3><p>כל מסמך נחתך לקטעים קצרים לפי הכותרות שלו, כך שכל קטע עוסק בנושא אחד.</p></li>
-        <li><h3>מחפשים פעמיים</h3><p>פעם לפי מילים ופעם לפי משמעות, ומאחדים את התוצאות.</p></li>
-        <li><h3>מדרגים מחדש</h3><p>מודל קטן ומהיר קורא את המועמדים המובילים ומסדר אותם לפי התאמה לשאלה.</p></li>
-        <li><h3>הסוכן עונה</h3><p>מודל גדול קורא את הקטעים, כותב תשובה קצרה ומציין מקור לכל משפט.</p></li>
-        <li><h3>בודקים במבחן</h3><p>20 שאלות קבועות רצות אחרי כל שינוי בקוד, ואם האיכות יורדת, הבדיקה נכשלת.</p></li>
+        <li><h3>לקוח כותב</h3><p>שאלה, בקשה לתור, או כמה דברים בבת אחת.</p></li>
+        <li><h3>הסוכן בוחר כלי</h3><p>לפי תיאור של כל כלי: מתי להשתמש בו ומתי לא.</p></li>
+        <li><h3>הקוד מריץ</h3><p>חיפוש רץ מיד. פעולה שמשנה משהו נעצרת קודם לאישור.</p></li>
+        <li><h3>הלקוח מאשר</h3><p>הוא רואה בדיוק מה יקרה. בלי "כן" מפורש, שום דבר לא מתבצע.</p></li>
+        <li><h3>תשובה עם מקור</h3><p>הסוכן מסכם מה נעשה ומציין מאיפה הגיע כל פרט.</p></li>
       </ol>
+    </div>
+  </section>
+
+  <section aria-labelledby="gate-title">
+    <div class="wrap">
+      <h2 id="gate-title">האישור נאכף בקוד, ולא בבקשה יפה</h2>
+      <p class="lead">אפשר לכתוב למודל "אל תשלח מייל בלי אישור" ולקוות לטוב. כאן זה בנוי אחרת: הקוד שמריץ את הכלים עוצר לפני כל פעולה ושואל את הלקוח. גם אם מסמך זדוני ישכנע את המודל, הפעולה לא תתבצע בלי "כן".</p>
+      <div class="gate">
+        <div class="card">
+          <h3>שני סוגי כלים</h3>
+          <p><b>כלי קריאה</b> רק מביאים מידע: חיפוש במאגר, בדיקת שעות פנויות. הם רצים מיד.</p>
+          <p><b>כלי פעולה</b> משנים משהו בעולם: תור, מייל, פנייה. הם עוברים דרך שער האישור.</p>
+          <p>גם כללי העסק נאכפים בקוד: יומן התורים מסרב לקבוע תור בשבת או על שעה תפוסה, לא משנה מה המודל ביקש.</p>
+        </div>
+        <pre><code>if (tool.kind === "action") {
+  const approved = await approve(summary);
+  if (!approved) return "declined";
+}
+return await tool.run(input);</code></pre>
+      </div>
     </div>
   </section>
 
   <section aria-labelledby="results-title">
     <div class="wrap">
-      <h2 id="results-title">האם זה באמת עובד? המספרים</h2>
-      <p class="lead">לכל שאלה במבחן ידוע מראש איזה קטע במדריך עונה עליה. הגרף מראה באיזה אחוז מהשאלות הקטע הנכון הופיע בין חמש התוצאות הראשונות, בכל שיטת חיפוש.</p>
+      <h2 id="results-title">האם החיפוש באמת עובד? המספרים</h2>
+      <p class="lead">לחלק מהתרחישים ידוע מראש איזה קטע במאגר עונה עליהם. הגרף מראה באיזה אחוז מהם הקטע הנכון הופיע בין חמש התוצאות הראשונות, בכל שיטת חיפוש.</p>
       <div class="card">
-        <div id="chart" role="group" aria-label="אחוז השאלות שבהן הקטע הנכון הופיע בחמש התוצאות הראשונות, לפי שיטת חיפוש"></div>
-        <p class="honest">המספרים נמדדו על 17 השאלות שיש להן תשובה במדריך. זה מבחן קטן, ולכן הוא מראה כיוון ולא אמת מוחלטת.</p>
+        <div id="chart" role="group" aria-label="אחוז הפניות שבהן הקטע הנכון הופיע בחמש התוצאות הראשונות, לפי שיטת חיפוש"></div>
+        <p class="honest">נמדד על 8 פניות בלבד, שהתשובה שלהן נמצאת במאגר. זה מבחן קטן מאוד, ולכן הוא מראה כיוון ולא אמת מוחלטת.</p>
       </div>
     </div>
   </section>
@@ -310,12 +336,12 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
   <section aria-labelledby="parts-title">
     <div class="wrap">
       <h2 id="parts-title">מה יש בפרויקט</h2>
-      <p class="lead">הכול כתוב בקוד, בשפת TypeScript, בלי כלי גרירה מוכנים.</p>
+      <p class="lead">הכול כתוב בקוד, בשפת TypeScript. כל מה ששייך לעסק יושב בתיקייה אחת, כך שאפשר להחליף עסק בלי לגעת בקוד.</p>
       <div class="cards">
         <article class="card"><h3>מנוע חיפוש לעברית</h3><p>חיפוש מילים שמבין אותיות שנדבקות למילה, חיפוש לפי משמעות, ואיחוד של שניהם.</p><span class="status status--ok">רץ ונבדק</span></article>
-        <article class="card"><h3>שרת MCP</h3><p>מחבר את מנוע החיפוש לאפליקציות כמו Claude Desktop, כך שגם הן יכולות לחפש במדריך.</p><span class="status status--ok">רץ ונבדק</span></article>
-        <article class="card"><h3>מבחן אוטומטי</h3><p>20 שאלות, כולל שאלות בלי תשובה ושאלת מלכודת. רץ ב-GitHub אחרי כל שינוי.</p><span class="status status--ok">מבחן החיפוש רץ ונבדק</span></article>
-        <article class="card"><h3>הסוכן והדירוג מחדש</h3><p>החלקים שמדברים עם Claude: כתיבת התשובה, דירוג הקטעים ומבחן התשובות.</p><span class="status status--wait">כתוב, ממתין למפתח API</span></article>
+        <article class="card"><h3>יומן, מייל ופניות</h3><p>יומן תורים עם כללי העסק, תיבת דואר יוצא ורישום פניות לצוות. המייל נכתב לקובץ ולא נשלח באמת, והסוכן יודע לומר זאת.</p><span class="status status--ok">רץ ונבדק</span></article>
+        <article class="card"><h3>לולאת הסוכן ושער האישור</h3><p>הקוד שמריץ את הכלים, עוצר לאישור ומגביל את מספר הצעדים.</p><span class="status status--ok">נבדק מול מודל מדומה</span></article>
+        <article class="card"><h3>השיחה החיה עם Claude</h3><p>הסוכן עצמו, החיפוש באינטרנט ו-20 התרחישים מקצה לקצה.</p><span class="status status--wait">כתוב, ממתין למפתח API</span></article>
       </div>
     </div>
   </section>
@@ -326,16 +352,16 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
       <p class="lead">המילים שחוזרות בפרויקט, בעברית פשוטה.</p>
       <div class="glossary">
         <details><summary>מודל שפה <span dir="ltr">LLM</span></summary><p>תוכנה שלמדה מהמון טקסט לחזות איזו מילה תבוא עכשיו. Claude ו-ChatGPT בנויים על מודלים כאלה.</p></details>
+        <details><summary>סוכן <span dir="ltr">agent</span></summary><p>מודל שפה שמקבל מטרה וכלים, ומחליט בעצמו אילו צעדים לעשות. הוא עובד בסבבים: מפעיל כלי, קורא את התוצאה, ומחליט מה הלאה.</p></details>
+        <details><summary>כלי <span dir="ltr">tool</span></summary><p>פעולה שהמודל יכול לבקש: חיפוש, קביעת תור, שליחת מייל. המודל לא מריץ כלום בעצמו. הוא רק מבקש, והקוד שסביבו מריץ.</p></details>
+        <details><summary>ניתוב כלים <span dir="ltr">tool routing</span></summary><p>ההחלטה איזה כלי מתאים לכל פנייה. המודל מחליט לפי התיאור שכתבנו לכל כלי: מתי להשתמש בו ומתי לא.</p></details>
         <details><summary>RAG</summary><p>שיטה שבה המערכת מחפשת קודם במסמכים, מצרפת את מה שמצאה לשאלה, ורק אז המודל עונה. מבחן בספר פתוח.</p></details>
         <details><summary>קטע <span dir="ltr">chunk</span></summary><p>חתיכה קצרה של מסמך. מחפשים בקטעים ולא במסמכים שלמים, כי כך החיפוש מדויק יותר.</p></details>
-        <details><summary>חיפוש מילות מפתח <span dir="ltr">BM25</span></summary><p>חיפוש שמוצא קטעים עם אותן מילים שבשאלה, ונותן יותר משקל למילים נדירות.</p></details>
         <details><summary>הטמעה <span dir="ltr">embedding</span></summary><p>רשימה של מספרים שמייצגת את המשמעות של טקסט. טקסטים עם משמעות דומה מקבלים מספרים קרובים, וכך מחפשים לפי משמעות.</p></details>
-        <details><summary>חיפוש היברידי</summary><p>הרצה של שני החיפושים יחד ואיחוד התוצאות לרשימה אחת.</p></details>
-        <details><summary>דירוג מחדש <span dir="ltr">re-ranking</span></summary><p>שלב נוסף שבו מודל קורא את התוצאות המובילות ומסדר אותן לפי מידת ההתאמה לשאלה.</p></details>
-        <details><summary>סוכן <span dir="ltr">agent</span></summary><p>מודל שפה שמקבל מטרה וכלים, ומחליט בעצמו אילו צעדים לעשות. כאן הכלים הם חיפוש במדריך וקריאת מסמך.</p></details>
-        <details><summary>MCP</summary><p>תקן אחיד לחיבור מודלים לכלים, כמו שקע USB. שרת MCP מציע יכולות, ואפליקציות שתומכות בתקן מתחברות אליו.</p></details>
-        <details><summary>מבחן <span dir="ltr">eval</span></summary><p>רשימה קבועה של שאלות עם תשובות ידועות. מריצים אותה אחרי כל שינוי כדי לדעת אם המערכת השתפרה או נפגעה.</p></details>
-        <details><summary>הזרקת פרומפט <span dir="ltr">prompt injection</span></summary><p>טקסט ששותלים בתוך מסמך כדי שהמודל יחשוב שזו הוראה. במדריך של מוקד יש מלכודת כזו בכוונה, והמבחן בודק שהסוכן לא נופל בה.</p></details>
+        <details><summary>הנחיות מערכת <span dir="ltr">system prompt</span></summary><p>ההוראות הקבועות שהסוכן מקבל לפני כל שיחה: מה התפקיד שלו, מאיפה מותר לו לקחת מידע, ומה הגבולות.</p></details>
+        <details><summary>אדם בלולאה <span dir="ltr">human in the loop</span></summary><p>עיקרון שלפיו פעולה חשובה לא מתבצעת עד שאדם מאשר אותה. כאן: כל תור, מייל או פנייה.</p></details>
+        <details><summary>מבחן <span dir="ltr">eval</span></summary><p>רשימה קבועה של תרחישים עם התנהגות צפויה. מריצים אותה אחרי כל שינוי כדי לדעת אם המערכת השתפרה או נפגעה.</p></details>
+        <details><summary>הזרקת פרומפט <span dir="ltr">prompt injection</span></summary><p>טקסט ששותלים בתוך מסמך כדי שהמודל יחשוב שזו הוראה. במאגר של פרווה יש מלכודת כזו בכוונה, והמבחן בודק שהסוכן לא נופל בה.</p></details>
         <details><summary>API ומפתח API</summary><p>API הוא הדרך שבה תוכנה אחת מדברת עם תוכנה אחרת. מפתח API הוא הסיסמה שמזהה אתכם מול השירות, ולפיה מחייבים על השימוש.</p></details>
       </div>
     </div>
@@ -345,7 +371,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
 <footer>
   <div class="wrap">
     <span>בנתה: ליז חג׳ג׳</span>
-    <span>המדריך "AI בגובה העיניים" נכתב עבור הפרויקט הזה ומשמש כנתוני הדגמה.</span>
+    <span>"פרווה" הוא עסק בדוי שנכתב עבור הפרויקט. כל המחירים והנהלים הם נתוני הדגמה.</span>
     <a href="https://github.com/lizamir/moked">github.com/lizamir/moked</a>
   </div>
 </footer>

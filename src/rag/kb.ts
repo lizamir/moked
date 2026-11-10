@@ -8,7 +8,7 @@ import { Retriever } from "./retriever.ts";
 import type { Chunk, Doc } from "./types.ts";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-export const DEFAULT_KB_DIR = path.join(ROOT, "data/kb");
+export const DEFAULT_KB_DIR = path.join(process.env.MOKED_BUSINESS_DIR ?? path.join(ROOT, "business"), "kb");
 const CACHE_DIR = path.join(ROOT, ".cache");
 
 export interface KnowledgeBase {

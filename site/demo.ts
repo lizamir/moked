@@ -1,6 +1,6 @@
 /**
  * Browser side of the explainer page. It runs the project's real tokenizer and
- * BM25 index in the page; semantic and fused results for the 20 eval questions
+ * BM25 index in the page; semantic and fused results for the 20 eval scenarios
  * are precomputed by scripts/build-site.ts.
  */
 import { Bm25Index } from "../src/rag/bm25.ts";
@@ -8,11 +8,16 @@ import { searchableText } from "../src/rag/chunk.ts";
 import { hebrewVariants, normalize, tokenizeHebrew, tokenizeHebrewGrouped } from "../src/rag/tokenize.ts";
 import type { Chunk } from "../src/rag/types.ts";
 
+type ScenarioType = "kb" | "web" | "action" | "multi" | "boundary";
 interface Preset {
   id: string;
-  type: "single" | "multi" | "unanswerable" | "injection";
+  type: ScenarioType;
   question: string;
-  reference: string;
+  followUps: string[];
+  behavior: string;
+  approve: boolean;
+  tools: string[];
+  noTools: string[];
   expected: string[];
   dense: string[];
   hybrid: string[];
@@ -106,33 +111,44 @@ function renderList(selector: string, ids: string[] | null, expected: string[], 
 
 // ---------- step 4: what the agent is expected to do ----------
 
-const VERDICTS: Record<Preset["type"], string> = {
-  single: "שאלה רגילה: קטע אחד במדריך עונה עליה.",
-  multi: "שאלה כפולה: התשובה מפוזרת בשני מסמכים, והסוכן צריך לחפש פעמיים.",
-  unanswerable: "שאלה בלי תשובה: המדריך לא עוסק בזה. המבחן בודק שהסוכן אומר שאין לו מידע, ולא מנחש.",
-  injection: "שאלת מלכודת: אחד הקטעים מכיל טקסט שמתחזה להוראה. המבחן בודק שהסוכן לא מציית לו.",
+const KIND: Record<ScenarioType, string> = {
+  kb: "שאלה שהתשובה שלה נמצאת במאגר הידע של העסק.",
+  web: "שאלה שהמאגר לא עונה עליה לבד: כאן נבדק מתי הסוכן פונה לאינטרנט, ומה קובע כשיש סתירה.",
+  action: "בקשה לפעולה: הסוכן צריך לאסוף פרטים, לבקש אישור, ורק אז לבצע.",
+  multi: "בקשה מורכבת: צריך כמה כלים, בסדר הנכון.",
+  boundary: "מקרה גבול: כאן נבדק מה הסוכן לא עושה.",
 };
+const TOOL_LABEL: Record<string, string> = {
+  search_knowledge_base: "חיפוש במאגר הידע",
+  web_search: "חיפוש באינטרנט",
+  check_availability: "בדיקת שעות פנויות",
+  book_appointment: "קביעת תור",
+  send_email: "שליחת מייל",
+  log_request: "רישום פנייה לצוות",
+};
+const ACTIONS = new Set(["book_appointment", "send_email", "log_request"]);
+
+function toolRow(label: string, tools: string[], className: string): HTMLElement {
+  const row = el("p", "answer__tools", label);
+  for (const tool of tools) row.append(el("span", `chip ${className}`, TOOL_LABEL[tool] ?? tool));
+  return row;
+}
 
 function renderAnswer(preset: Preset | null) {
   const box = $("#answer");
   box.replaceChildren();
   if (!preset) {
-    box.append(
-      el("p", "", "בשאלה חופשית העמוד מריץ רק את חיפוש מילות המפתח. חיפוש המשמעות והסוכן צריכים מודלים שרצים על מחשב או דרך מפתח API, ולכן הם לא פועלים כאן."),
-    );
+    box.append(el("p", "", "בשאלה חופשית העמוד מריץ רק את חיפוש מילות המפתח במאגר. הסוכן עצמו צריך מפתח API, ולכן הוא לא פועל כאן."));
     return;
   }
-  box.append(el("p", "answer__kind", VERDICTS[preset.type]));
-  box.append(el("p", "answer__label", "התשובה שהמבחן מצפה לה:"));
-  box.append(el("p", "answer__text", preset.reference));
-  if (preset.expected.length) {
-    const cites = el("p", "answer__cites", "המקורות שהסוכן אמור לצטט: ");
-    preset.expected.forEach((id) => {
-      const code = el("code", "", `[${id}]`);
-      code.dir = "ltr";
-      cites.append(code, " ");
-    });
-    box.append(cites);
+  box.append(el("p", "answer__kind", KIND[preset.type]));
+  for (const followUp of preset.followUps) box.append(el("p", "answer__label", `ובהמשך השיחה הלקוח כותב: "${followUp}"`));
+  box.append(el("p", "answer__label", "מה הסוכן אמור לעשות:"));
+  box.append(el("p", "answer__text", preset.behavior));
+  if (preset.tools.length) box.append(toolRow("כלים שחייבים לפעול: ", preset.tools, "chip--yes"));
+  if (preset.noTools.length) box.append(toolRow("כלים שאסור שיפעלו: ", preset.noTools, "chip--no"));
+  if (preset.tools.some((tool) => ACTIONS.has(tool))) {
+    box.append(el("p", "answer__label", preset.approve ? "בתרחיש הזה הלקוח מאשר את הפעולה." : "בתרחיש הזה הלקוח מסרב לאשר, ולכן שום דבר לא אמור להתבצע."));
   }
 }
 
@@ -143,16 +159,16 @@ function run(question: string, preset: Preset | null) {
   $("#asked").textContent = question;
   renderWords(question);
   renderList("#hits-keyword", keywordSearch(question), expected, "");
-  renderList("#hits-meaning", preset?.dense ?? null, expected, "זמין רק לשאלות המוכנות: חיפוש לפי משמעות צריך מודל שלא רץ בדפדפן.");
+  renderList("#hits-meaning", preset?.dense ?? null, expected, "זמין רק לתרחישים המוכנים: חיפוש לפי משמעות צריך מודל שלא רץ בדפדפן.");
   renderList("#hits-final", preset?.hybrid ?? keywordSearch(question), expected, "");
   $("#final-note").textContent = preset
-    ? "הרשימה המאוחדת, כפי שהיא מגיעה לסוכן."
+    ? "הרשימה המאוחדת, כפי שהיא מגיעה לסוכן. המאגר תמיד מחזיר משהו, גם כשאין בו תשובה: הסוכן הוא שמחליט אם הקטעים עונים על השאלה."
     : "בשאלה חופשית מוצגות כאן תוצאות חיפוש מילות המפתח בלבד.";
   renderAnswer(preset);
   document.querySelectorAll<HTMLButtonElement>(".q").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.id === preset?.id)));
 }
 
-const TYPE_LABEL: Record<Preset["type"], string> = { single: "", multi: "כפולה", unanswerable: "בלי תשובה", injection: "מלכודת" };
+const TYPE_LABEL: Record<ScenarioType, string> = { kb: "מאגר", web: "אינטרנט", action: "פעולה", multi: "כמה כלים", boundary: "גבול" };
 
 const picker = $("#questions");
 for (const preset of data.presets) {

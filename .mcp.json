@@ -2,7 +2,7 @@
   "mcpServers": {
     "moked": {
       "command": "npx",
-      "args": ["tsx", "src/mcp/server.ts"]
+      "args": ["tsx", "src/interfaces/mcp-server.ts"]
     }
   }
 }

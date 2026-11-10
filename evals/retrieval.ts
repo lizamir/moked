@@ -7,13 +7,16 @@ import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createRetriever, hasAnthropicCredentials, loadKnowledgeBase } from "../src/rag/kb.ts";
 import type { RetrievalMode } from "../src/rag/types.ts";
-import { EVALS_DIR, loadDataset, markdownTable, mean, pct, recallAtK, reciprocalRank } from "./lib.ts";
+import { EVALS_DIR, loadScenarios, markdownTable, mean, pct, recallAtK, reciprocalRank } from "./lib.ts";
 
 const GATE = { mode: "hybrid" as RetrievalMode, recallAt5: 0.9 };
 
 const kb = await loadKnowledgeBase();
 const retriever = createRetriever(kb);
-const cases = (await loadDataset()).filter((c) => c.expected_chunks.length > 0);
+// Retrieval is graded on the first message of every scenario whose answer is in the knowledge base.
+const cases = (await loadScenarios())
+  .filter((s) => s.expect.expected_chunks?.length)
+  .map((s) => ({ id: s.id, question: s.turns[0]!, expected_chunks: s.expect.expected_chunks! }));
 
 const knownIds = new Set(kb.chunks.map((c) => c.id));
 for (const c of cases) {

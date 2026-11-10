@@ -2,7 +2,7 @@
  * Builds docs/index.html, the project's explainer page (served by GitHub Pages).
  *
  * The page is one self-contained file: the knowledge base, the 20 eval
- * questions with their real retrieval results, and a browser bundle of the
+ * scenarios with their real retrieval results, and a browser bundle of the
  * same tokenizer and BM25 code the agent uses, so keyword search runs live in
  * the page. Embeddings need a model, so semantic results are precomputed here.
  */
@@ -10,7 +10,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
-import { loadDataset } from "../evals/lib.ts";
+import { loadScenarios } from "../evals/lib.ts";
 import { createRetriever, loadKnowledgeBase } from "../src/rag/kb.ts";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -21,15 +21,20 @@ const ids = async (question: string, mode: "bm25" | "dense" | "hybrid") =>
   (await retriever.search(question, { mode, k: 5 })).map((hit) => hit.chunk.id);
 
 const presets = [];
-for (const c of await loadDataset()) {
+for (const s of await loadScenarios()) {
+  const question = s.turns[0]!;
   presets.push({
-    id: c.id,
-    type: c.type,
-    question: c.question,
-    reference: c.reference,
-    expected: c.expected_chunks,
-    dense: await ids(c.question, "dense"),
-    hybrid: await ids(c.question, "hybrid"),
+    id: s.id,
+    type: s.scenario,
+    question,
+    followUps: s.turns.slice(1),
+    behavior: s.expected_behavior,
+    approve: s.approve ?? true,
+    tools: s.expect.tools ?? [],
+    noTools: s.expect.no_tools ?? [],
+    expected: s.expect.expected_chunks ?? [],
+    dense: await ids(question, "dense"),
+    hybrid: await ids(question, "hybrid"),
   });
 }
 

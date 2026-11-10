@@ -15,7 +15,7 @@ const textOf = (result: Awaited<ReturnType<typeof client.callTool>>) =>
 before(async () => {
   // ANTHROPIC_API_KEY is deliberately not forwarded: the server must work without it.
   const env = { PATH: process.env.PATH ?? "", HOME: process.env.HOME ?? "" };
-  await client.connect(new StdioClientTransport({ command: "npx", args: ["tsx", "src/mcp/server.ts"], cwd: root, env, stderr: "ignore" }));
+  await client.connect(new StdioClientTransport({ command: "npx", args: ["tsx", "src/interfaces/mcp-server.ts"], cwd: root, env, stderr: "ignore" }));
 });
 after(() => client.close());
 
@@ -25,20 +25,20 @@ test("lists the three tools", async () => {
 });
 
 test("search returns the passage that answers the question", async () => {
-  const result = await client.callTool({ name: "search_knowledge_base", arguments: { query: "כמה צעדים מקסימום לתת לסוכן", limit: 3 } });
-  assert.match(textOf(result), /<passage id="agents#5"/);
-  assert.match(textOf(result), /10 צעדים/);
+  const result = await client.callTool({ name: "search_knowledge_base", arguments: { query: "דמי ביטול תור", limit: 3 } });
+  assert.match(textOf(result), /<passage id="cancellation#1"/);
+  assert.match(textOf(result), /50 ₪/);
 });
 
 test("get_document returns a full document and reports unknown ids as errors", async () => {
-  assert.match(textOf(await client.callTool({ name: "get_document", arguments: { document_id: "mcp" } })), /Model Context Protocol/);
+  assert.match(textOf(await client.callTool({ name: "get_document", arguments: { document_id: "payments" } })), /ביט/);
   const missing = await client.callTool({ name: "get_document", arguments: { document_id: "nope" } });
   assert.equal(missing.isError, true);
   assert.match(textOf(missing), /Available: /);
 });
 
 test("re-ranking without credentials fails with an actionable message", async () => {
-  const result = await client.callTool({ name: "search_knowledge_base", arguments: { query: "סוכן", rerank: true } });
+  const result = await client.callTool({ name: "search_knowledge_base", arguments: { query: "פנסיון", rerank: true } });
   assert.equal(result.isError, true);
   assert.match(textOf(result), /rerank=false/);
 });

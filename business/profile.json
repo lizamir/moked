@@ -1,0 +1,26 @@
+{
+  "name": "פרווה",
+  "tagline": "מספרה ופנסיון לכלבים",
+  "email": "hello@parva.example",
+  "address": "רחוב האלון 8, קריית דוגמה",
+  "timezone": "Asia/Jerusalem",
+  "slotMinutes": 30,
+  "bookingWindowDays": 30,
+  "hours": {
+    "sunday": ["09:00", "18:00"],
+    "monday": ["09:00", "18:00"],
+    "tuesday": ["09:00", "18:00"],
+    "wednesday": ["09:00", "18:00"],
+    "thursday": ["09:00", "18:00"],
+    "friday": ["08:00", "13:00"],
+    "saturday": null
+  },
+  "services": [
+    { "id": "bath", "name": "מקלחת וייבוש", "minutes": 60, "price": 130 },
+    { "id": "groom-small", "name": "תספורת מלאה, כלב קטן (עד 10 ק\"ג)", "minutes": 90, "price": 190 },
+    { "id": "groom-medium", "name": "תספורת מלאה, כלב בינוני (10 עד 25 ק\"ג)", "minutes": 120, "price": 240 },
+    { "id": "groom-large", "name": "תספורת מלאה, כלב גדול (מעל 25 ק\"ג)", "minutes": 150, "price": 310 },
+    { "id": "nails", "name": "קיצוץ ציפורניים", "minutes": 30, "price": 50 },
+    { "id": "puppy-intro", "name": "מפגש היכרות לגורים", "minutes": 30, "price": 90 }
+  ]
+}

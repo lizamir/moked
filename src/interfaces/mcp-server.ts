@@ -22,7 +22,7 @@ server.registerTool(
   {
     title: "Search knowledge base",
     description:
-      "Hybrid (BM25 + embeddings) search over 'AI בגובה העיניים', a plain-language Hebrew guide to AI concepts (LLMs, RAG, agents, MCP, evals, safety). Returns the most relevant passages, best first, each with an id that can be cited or expanded with get_document.",
+      "Hybrid (BM25 + embeddings) search over the knowledge base of Parva (פרווה), a dog grooming salon and boarding kennel: services, prices, hours, booking and cancellation policy, vaccines, payments. Written in Hebrew. Returns the most relevant passages, best first, each with an id that can be cited or expanded with get_document.",
     inputSchema: {
       query: z.string().describe("Short natural-language query, ideally in Hebrew, about one topic"),
       limit: z.number().int().min(1).max(10).default(5).describe("How many passages to return"),
@@ -47,7 +47,7 @@ server.registerTool(
   {
     title: "Get document",
     description: "Return one knowledge-base document in full. The id is the part of a passage id before '#', or any id from list_documents.",
-    inputSchema: { document_id: z.string().describe("e.g. 'rag'") },
+    inputSchema: { document_id: z.string().describe("e.g. 'cancellation'") },
     annotations: { readOnlyHint: true },
   },
   async ({ document_id }) => {
