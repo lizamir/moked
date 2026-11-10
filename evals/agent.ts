@@ -58,7 +58,9 @@ async function runScenario(scenario: Scenario): Promise<Result> {
   }
 }
 
-const scenarios = await loadScenarios();
+// MOKED_SCENARIOS=s20,s12 runs a subset (for iterating on one failure). Only a full run writes the report.
+const only = process.env.MOKED_SCENARIOS?.split(",").map((id) => id.trim());
+const scenarios = (await loadScenarios()).filter((s) => !only || only.includes(s.id));
 const results: Result[] = [];
 for (const scenario of scenarios) {
   const result = await runScenario(scenario).catch((error: unknown): Result => ({
@@ -97,8 +99,10 @@ const report = [
   "",
 ].join("\n");
 
-await writeFile(path.join(EVALS_DIR, "results/agent.md"), report);
-await writeFile(path.join(EVALS_DIR, "results/agent.json"), JSON.stringify(results, null, 2));
+if (!only) {
+  await writeFile(path.join(EVALS_DIR, "results/agent.md"), report);
+  await writeFile(path.join(EVALS_DIR, "results/agent.json"), JSON.stringify(results, null, 2));
+}
 console.log(report);
 
 if (passRate < GATE) {
