@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import type Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { Conversation, extractCitations, type ModelClient } from "../src/agent/conversation.ts";
+import { Conversation, extractCitations, withoutCitations, type ModelClient } from "../src/agent/conversation.ts";
 import { buildSystemPrompt } from "../src/agent/prompt.ts";
 import { loadProfile } from "../src/services/business.ts";
 import { defineTool } from "../src/tools/types.ts";
@@ -160,4 +160,10 @@ test("every tool call reaches the audit hook, including a declined action", asyn
   });
   await conversation.send("תקבעו לי תור");
   assert.deepEqual(seen, ["lookup:read:ok", "book:action:declined"]);
+});
+
+test("customers never see passage ids", () => {
+  assert.equal(withoutCitations("לילה עולה 140 ₪ לכלב [boarding#1]. צריך מקדמה של 30% [payments#3]."), "לילה עולה 140 ₪ לכלב. צריך מקדמה של 30%.");
+  assert.equal(withoutCitations("סגורים בשבת [hours-location#2]\nנתראה!"), "סגורים בשבת\nנתראה!");
+  assert.equal(withoutCitations("אין כאן מקורות."), "אין כאן מקורות.");
 });

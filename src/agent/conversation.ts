@@ -49,6 +49,18 @@ export interface ConversationOptions {
   maxSteps?: number;
 }
 
+/**
+ * The answer as a customer should see it: without the passage ids. The ids
+ * stay in `Turn.answer`, where the evals check that the agent cited its source.
+ */
+export function withoutCitations(answer: string): string {
+  return answer
+    .replace(/[ \t]*\[[a-z0-9-]+#\d+\]/g, "")
+    .replace(/[ \t]+([.,!?:])/g, "$1")
+    .replace(/[ \t]+$/gm, "")
+    .trim();
+}
+
 export function extractCitations(answer: string): string[] {
   return [...new Set([...answer.matchAll(/\[([a-z0-9-]+#\d+)\]/g)].map((m) => m[1]!))];
 }

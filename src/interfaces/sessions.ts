@@ -1,4 +1,4 @@
-import type { Approver, Step, Turn } from "../agent/conversation.ts";
+import { withoutCitations, type Approver, type Step, type Turn } from "../agent/conversation.ts";
 
 /** What the agent sends back to a person: an answer, a question that needs yes or no, or a short status. */
 export type Outgoing =
@@ -66,7 +66,8 @@ export class ChatSessions {
     session.busy = true;
     try {
       const turn = await (await session.conversation).send(text);
-      await this.send(userId, { kind: "text", text: turn.answer, steps: turn.steps });
+      // Passage ids like [boarding#4] are for the evals and the developer, not for a customer in a chat.
+      await this.send(userId, { kind: "text", text: withoutCitations(turn.answer), steps: turn.steps });
     } catch (error) {
       console.error(`[${userId}]`, error);
       await this.send(userId, { kind: "status", text: "משהו השתבש אצלי. אפשר לנסות שוב בעוד רגע." });
