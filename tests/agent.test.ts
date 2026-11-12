@@ -144,3 +144,20 @@ test("the system prompt is built from the business profile and today's date", as
   assert.match(prompt, /Today is Sunday, 2026-11-15/);
   for (const service of profile.services) assert.ok(prompt.includes(service.id), service.id);
 });
+
+test("every tool call reaches the audit hook, including a declined action", async () => {
+  const { model } = scripted([callTool("lookup", { q: "מחיר" }), callTool("book", { time: "10:00" }, "call_2"), text("בסדר, לא קבעתי.")]);
+  const seen: string[] = [];
+  const conversation = new Conversation({
+    model,
+    system: "",
+    approve: async () => false,
+    onStep: (step) => void seen.push(`${step.tool}:${step.kind}:${step.outcome}`),
+    tools: [
+      defineTool({ name: "lookup", kind: "read", description: "", schema: z.object({ q: z.string() }), run: async () => "found" }),
+      defineTool({ name: "book", kind: "action", description: "", schema: z.object({ time: z.string() }), run: async () => "booked" }),
+    ],
+  });
+  await conversation.send("תקבעו לי תור");
+  assert.deepEqual(seen, ["lookup:read:ok", "book:action:declined"]);
+});

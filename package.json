@@ -1,7 +1,7 @@
 {
   "name": "moked",
   "version": "0.1.0",
-  "description": "Business AI agent in TypeScript: Hebrew RAG over a knowledge base, web search, and approval-gated actions (booking, email, staff requests), with an MCP server and an eval suite",
+  "description": "Business AI agent in TypeScript: Hebrew RAG over a knowledge base, web search, and approval-gated actions (booking, email, staff requests), Jira tickets, an audit log, an MCP server, Docker and an eval suite",
   "type": "module",
   "license": "MIT",
   "engines": {

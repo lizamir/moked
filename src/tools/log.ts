@@ -1,8 +1,9 @@
 import { z } from "zod";
 import type { RequestLog } from "../services/request-log.ts";
+import type { TicketSystem } from "../services/tickets.ts";
 import { defineTool } from "./types.ts";
 
-export function logTools(log: RequestLog) {
+export function logTools(log: RequestLog, tickets?: TicketSystem) {
   return [
     defineTool({
       name: "log_request",
@@ -16,8 +17,16 @@ export function logTools(log: RequestLog) {
       }),
       summarize: (i) => `לרשום פנייה לצוות על שם ${i.customer_name} (${i.contact}): ${i.topic}`,
       run: async (i) => {
-        await log.add({ customerName: i.customer_name, contact: i.contact, topic: i.topic, details: i.details });
-        return "Recorded. A staff member returns requests within one business day.";
+        const request = { customerName: i.customer_name, contact: i.contact, topic: i.topic, details: i.details };
+        // The CSV row is written first, so the request survives even when the ticket system is down.
+        await log.add(request);
+        if (!tickets) return "Recorded. A staff member returns requests within one business day.";
+        try {
+          const ticket = await tickets.open(request);
+          return `Recorded as ticket ${ticket.key}. Give the customer this number. A staff member returns requests within one business day.`;
+        } catch {
+          return "Recorded for the staff, but the ticket system did not answer, so there is no ticket number to give. A staff member returns requests within one business day.";
+        }
       },
     }),
   ];

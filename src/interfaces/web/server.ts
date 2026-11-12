@@ -40,6 +40,8 @@ export function createWebChat(start: StartConversation): Server {
       if (req.method === "GET" && url.pathname === "/") {
         res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
         res.end(await readFile(PAGE));
+      } else if (req.method === "GET" && url.pathname === "/healthz") {
+        json(200, { status: "ok" });
       } else if (req.method === "POST" && url.pathname === "/api/message") {
         const { session, text } = await readJson(req);
         if (typeof session !== "string" || !/^[\w-]{8,64}$/.test(session) || typeof text !== "string" || !text.trim()) return json(400, { error: "session and text are required" });
@@ -69,7 +71,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const { createServices } = await import("../../tools/index.ts");
   const services = await createServices();
   const port = Number(process.env.PORT ?? 3100);
-  createWebChat((approve) => startConversation({ approve, services })).listen(port, "127.0.0.1", () => {
+  // Only this computer by default. A container sets HOST=0.0.0.0 so the published port can reach it.
+  const host = process.env.HOST ?? "127.0.0.1";
+  createWebChat((approve) => startConversation({ approve, services })).listen(port, host, () => {
     console.log(`Chat with the agent: http://localhost:${port}`);
   });
 }

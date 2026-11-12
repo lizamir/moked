@@ -43,6 +43,8 @@ export interface ConversationOptions {
   modelName?: string;
   /** Let Claude search the web (a server-side tool: Anthropic runs the search, not this process). */
   webSearch?: boolean;
+  /** Called once for every tool call, whatever its outcome. The audit log hangs here. */
+  onStep?: (step: Step) => void | Promise<void>;
   /** Upper bound on model calls per customer message, so a confused agent stops instead of looping. */
   maxSteps?: number;
 }
@@ -97,7 +99,11 @@ export class Conversation {
       this.messages.push({ role: "assistant", content: last.content });
 
       for (const block of last.content) {
-        if (block.type === "server_tool_use") steps.push({ tool: block.name, kind: "web", input: block.input, outcome: "ok", result: "" });
+        if (block.type === "server_tool_use") {
+          const step: Step = { tool: block.name, kind: "web", input: block.input, outcome: "ok", result: "" };
+          steps.push(step);
+          await this.options.onStep?.(step);
+        }
       }
 
       // A long web search can pause mid-turn; sending the conversation back lets the server continue it.
@@ -112,6 +118,7 @@ export class Conversation {
       for (const call of calls) {
         const step = await this.runTool(call);
         steps.push(step);
+        await this.options.onStep?.(step);
         results.push({ type: "tool_result", tool_use_id: call.id, content: step.result, is_error: step.outcome === "invalid" || step.outcome === "error" });
       }
       this.messages.push({ role: "user", content: results });

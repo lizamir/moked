@@ -4,7 +4,9 @@ import type { Retriever } from "../rag/retriever.ts";
 import { AppointmentBook } from "../services/appointments.ts";
 import { loadProfile, RUNTIME_DIR, systemClock, type BusinessProfile, type Clock } from "../services/business.ts";
 import { FileOutbox, type Mailer } from "../services/outbox.ts";
+import { AuditLog } from "../services/audit.ts";
 import { RequestLog } from "../services/request-log.ts";
+import { jiraFromEnv, type TicketSystem } from "../services/tickets.ts";
 import { calendarTools } from "./calendar.ts";
 import { emailTools } from "./email.ts";
 import { knowledgeTools } from "./knowledge.ts";
@@ -19,6 +21,10 @@ export interface Services {
   book: AppointmentBook;
   mailer: Mailer;
   log: RequestLog;
+  /** Set when Jira is configured: staff requests also become tickets. */
+  tickets?: TicketSystem;
+  /** Set by createServices: every tool call is recorded. Tests leave it out. */
+  audit?: AuditLog;
 }
 
 /** Wire the real services together. `runtimeDir` is where bookings, mail and the log are written. */
@@ -34,10 +40,12 @@ export async function createServices({ runtimeDir = RUNTIME_DIR, clock }: { runt
     book: new AppointmentBook(profile, path.join(runtimeDir, "appointments.json"), now),
     mailer: new FileOutbox(path.join(runtimeDir, "outbox"), profile.email),
     log: new RequestLog(path.join(runtimeDir, "requests.csv"), now),
+    tickets: jiraFromEnv(),
+    audit: new AuditLog(path.join(runtimeDir, "audit.jsonl")),
   };
 }
 
 /** Every tool the agent has, in one list. Web search is not here: it runs on Anthropic's servers (see agent/conversation.ts). */
 export function createTools(s: Services): AgentTool[] {
-  return [...knowledgeTools(s.kb, s.retriever, s.profile.name), ...calendarTools(s.book, s.profile), ...emailTools(s.mailer, s.book, s.profile, s.clock), ...logTools(s.log)];
+  return [...knowledgeTools(s.kb, s.retriever, s.profile.name), ...calendarTools(s.book, s.profile), ...emailTools(s.mailer, s.book, s.profile, s.clock), ...logTools(s.log, s.tickets)];
 }

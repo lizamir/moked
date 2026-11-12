@@ -186,6 +186,25 @@ section { padding-block: 56px; }
 footer { padding-block: 40px 56px; color: var(--ink-soft); font-size: 1rem; }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
 
+/* The Jira walk-through: five stations a staff request passes, lit one at a time. */
+.trail { display: grid; gap: 12px; grid-template-columns: repeat(5, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0 0 18px; counter-reset: trail; }
+.trail li { counter-increment: trail; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; opacity: 0.45; transition: opacity 0.3s, border-color 0.3s, box-shadow 0.3s; }
+.trail li::before { content: counter(trail); display: inline-grid; place-items: center; inline-size: 26px; block-size: 26px; border-radius: 50%; background: var(--accent-wash); color: var(--accent); font-weight: 700; font-size: 0.85rem; margin-block-end: 6px; }
+.trail li.is-on { opacity: 1; border-color: var(--accent-fill); box-shadow: var(--shadow); }
+.trail h3 { font-size: 1rem; margin: 0 0 4px; }
+.trail p { font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
+.trail-out { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); align-items: start; margin-block-start: 18px; }
+.ticket { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: var(--shadow); }
+.ticket-key { display: inline-block; direction: ltr; font-weight: 700; color: var(--accent); background: var(--accent-wash); border-radius: 8px; padding: 2px 10px; font-size: 0.85rem; }
+.ticket h3 { margin-block: 10px 6px; font-size: 1.05rem; }
+.ticket dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 0.9rem; }
+.ticket dt { color: var(--ink-soft); }
+.ticket dd { margin: 0; }
+.auditlog { margin: 0; direction: ltr; text-align: left; background: var(--deep); color: var(--on-deep); border-radius: 18px; padding: 18px; overflow-x: auto; font-size: 0.8rem; line-height: 1.7; min-block-size: 5.5em; }
+.trail-run { font: inherit; font-weight: 700; cursor: pointer; border: 0; border-radius: 999px; padding: 12px 22px; background: var(--accent); color: #fff; }
+.trail-run:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 3px; }
+.trail-say { margin-block: 14px 0; min-block-size: 3.2em; color: var(--ink); }
+@media (max-width: 760px) { .trail { grid-template-columns: 1fr; } }
 @media (max-width: 560px) {
   body { font-size: 1.05rem; }
   .bar { grid-template-columns: 1fr 3.2em; }
@@ -322,6 +341,36 @@ return await tool.run(input);</code></pre>
     </div>
   </section>
 
+  <section id="jira" aria-labelledby="jira-title">
+    <div class="wrap">
+      <h2 id="jira-title">פנייה לצוות הופכת לכרטיס ב-Jira</h2>
+      <p class="lead">יש בקשות שהסוכן לא יכול לסגור לבד, כמו הזמנה לפנסיון. במקום שהן יישארו בקובץ שאף אחד לא פותח, הסוכן פותח כרטיס ב-Jira, מערכת המשימות שבה הצוות עובד, ונותן ללקוח מספר פנייה. לחצו כדי לעקוב אחרי פנייה אחת.</p>
+      <ol class="trail" id="trail">
+        <li><h3>הלקוחה מבקשת</h3><p>"אני רוצה פנסיון לשבוע בדצמבר"</p></li>
+        <li><h3>שער האישור</h3><p>הסוכן מציג מה יירשם ומחכה ל"כן"</p></li>
+        <li><h3>נשמר בקובץ</h3><p>קודם כול גיבוי מקומי, למקרה ש-Jira לא זמין</p></li>
+        <li><h3>כרטיס ב-Jira</h3><p>הקוד שולח את הפרטים ומקבל מספר כרטיס</p></li>
+        <li><h3>יומן ביקורת</h3><p>נרשם מה נעשה ומתי, בלי פרטי הלקוחה</p></li>
+      </ol>
+      <button class="trail-run" id="trail-run" type="button">להריץ את ההמחשה</button>
+      <p class="trail-say" id="trail-say" aria-live="polite">חמש תחנות. בכל לחיצה הפנייה מתקדמת תחנה אחת.</p>
+      <div class="trail-out">
+        <div class="ticket" id="trail-ticket" hidden>
+          <span class="ticket-key">PARVA-12</span>
+          <h3>הזמנה לפנסיון: דנה לוי</h3>
+          <dl>
+            <dt>סטטוס</dt><dd>לביצוע</dd>
+            <dt>יצירת קשר</dt><dd dir="ltr">050-123-4567</dd>
+            <dt>פרטים</dt><dd>שבוע בדצמבר, כלב גדול</dd>
+            <dt>נפתח על ידי</dt><dd>הסוכן, אחרי אישור הלקוחה</dd>
+          </dl>
+        </div>
+        <pre class="auditlog" id="trail-audit" hidden aria-label="יומן הביקורת"></pre>
+      </div>
+      <p class="honest">זו המחשה עם נתונים לדוגמה, ולא חיבור חי ל-Jira. הקוד עצמו נבדק בבדיקות אוטומטיות מול Jira מדומה.</p>
+    </div>
+  </section>
+
   <section aria-labelledby="results-title">
     <div class="wrap">
       <h2 id="results-title">האם החיפוש באמת עובד? המספרים</h2>
@@ -341,6 +390,8 @@ return await tool.run(input);</code></pre>
         <article class="card"><h3>מנוע חיפוש לעברית</h3><p>חיפוש מילים שמבין אותיות שנדבקות למילה, חיפוש לפי משמעות, ואיחוד של שניהם.</p><span class="status status--ok">רץ ונבדק</span></article>
         <article class="card"><h3>יומן, מייל ופניות</h3><p>יומן תורים עם כללי העסק, תיבת דואר יוצא ורישום פניות לצוות. המייל נכתב לקובץ ולא נשלח באמת, והסוכן יודע לומר זאת.</p><span class="status status--ok">רץ ונבדק</span></article>
         <article class="card"><h3>לולאת הסוכן ושער האישור</h3><p>הקוד שמריץ את הכלים, עוצר לאישור ומגביל את מספר הצעדים.</p><span class="status status--ok">נבדק מול מודל מדומה</span></article>
+        <article class="card"><h3>כרטיסים ב-Jira ויומן ביקורת</h3><p>פנייה לצוות נפתחת גם ככרטיס ב-Jira, וכל פעולה של הסוכן נרשמת ביומן, כולל פעולות שהלקוח סירב להן.</p><span class="status status--ok">נבדק מול Jira מדומה</span></article>
+        <article class="card"><h3>Docker ובדיקה אוטומטית</h3><p>הסוכן ארוז בקונטיינר שרץ בלי הרשאות מנהל. בכל העלאת קוד, GitHub בונה את החבילה, מפעיל אותה ובודק שהיא עונה.</p><span class="status status--ok">נבנה ונבדק ב-CI</span></article>
         <article class="card"><h3>השיחה החיה עם Claude</h3><p>הסוכן עצמו, החיפוש באינטרנט ו-20 התרחישים מקצה לקצה. בהרצה הראשונה עברו 19 מתוך 20. הכישלון: הסוכן לא ציית למלכודת, אבל ציטט את קוד הקופון כדי להזהיר ממנו. תוקן במשפט אחד בהנחיות.</p><span class="status status--ok">רץ: 19 מתוך 20</span></article>
       </div>
     </div>
@@ -376,6 +427,34 @@ return await tool.run(input);</code></pre>
   </div>
 </footer>
 
+<script>
+(() => {
+  const stations = [...document.querySelectorAll("#trail li")];
+  const run = document.getElementById("trail-run");
+  const say = document.getElementById("trail-say");
+  const ticket = document.getElementById("trail-ticket");
+  const audit = document.getElementById("trail-audit");
+  if (!run || !say || !ticket || !audit) return;
+  const lines = [
+    "הלקוחה כותבת לסוכן. הוא מבין שאת זה הוא לא יכול לסגור לבד, ובוחר בכלי \"פנייה לצוות\".",
+    "זו פעולה שמשנה משהו, ולכן הקוד עוצר: \"לרשום פנייה על שם דנה לוי: הזמנה לפנסיון?\" הלקוחה עונה כן.",
+    "הפנייה נכתבת קודם לקובץ מקומי. אם Jira לא יענה, היא לא תלך לאיבוד.",
+    "הקוד שולח את הפרטים ל-Jira, ו-Jira מחזיר מספר: PARVA-12. הסוכן מוסר אותו ללקוחה.",
+    "ביומן הביקורת נוספת שורה: איזה כלי רץ, מתי, ושהוא אושר. שם וטלפון לא נרשמים שם.",
+  ];
+  let at = -1;
+  const show = () => {
+    stations.forEach((li, i) => li.classList.toggle("is-on", i <= at));
+    say.textContent = at < 0 ? "חמש תחנות. בכל לחיצה הפנייה מתקדמת תחנה אחת." : lines[at];
+    ticket.hidden = at < 3;
+    audit.hidden = at < 4;
+    audit.textContent = '{"time":"2026-11-12T18:20:01Z","tool":"log_request",\n "kind":"action","outcome":"ok"}';
+    run.textContent = at < 0 ? "להריץ את ההמחשה" : at < 4 ? "הצעד הבא" : "מההתחלה";
+  };
+  run.addEventListener("click", () => { at = at >= 4 ? -1 : at + 1; show(); });
+  show();
+})();
+</script>
 <script type="application/json" id="moked-data">__DATA__</script>
 <script>/*__SCRIPT__*/</script>
 </body>

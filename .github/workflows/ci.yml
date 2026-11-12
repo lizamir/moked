@@ -31,6 +31,30 @@ jobs:
         if: always()
         run: cat evals/results/retrieval.md >> "$GITHUB_STEP_SUMMARY"
 
+  docker:
+    # Builds the container image and checks that the chat really starts inside it.
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t moked:ci .
+      - name: Start the container and check it answers
+        run: |
+          # The key is a placeholder: the smoke test never calls Claude.
+          docker run -d --name moked -p 3100:3100 -e ANTHROPIC_API_KEY=placeholder moked:ci
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:3100/healthz && break
+            sleep 1
+          done
+          curl -fsS http://localhost:3100/healthz
+          curl -fsS http://localhost:3100/ | grep -qi "<html"
+          # The app must not run as root inside the container.
+          test "$(docker exec moked id -u)" != "0"
+      - name: Container logs
+        if: always()
+        run: docker logs moked || true
+
   agent-eval:
     # Calls the Claude API, so it only runs where the secret is available (not on fork PRs).
     if: github.event_name == 'push'

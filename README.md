@@ -56,6 +56,8 @@ src/
     outbox.ts            Mailer interface + a development mailer that writes .eml files
     calendar-invite.ts   The .ics calendar invite attached to booking confirmations
     request-log.ts       Requests for staff follow-up, as CSV
+    tickets.ts           Optional: the same requests as Jira tickets
+    audit.ts             One line per tool call: what the agent did, and whether it was approved
   tools/               What the agent is allowed to call. Thin wrappers over services.
     types.ts             A tool is "read" or "action"; actions need approval
     knowledge.ts         search_knowledge_base, read_document
@@ -108,6 +110,7 @@ This started as a course assignment specified for n8n. The same agent, node by n
 | Google Calendar | `src/services/appointments.ts` + `src/tools/calendar.ts` |
 | Gmail | `src/services/outbox.ts` + `src/tools/email.ts` |
 | Google Sheets | `src/services/request-log.ts` + `src/tools/log.ts` |
+| Jira Software | `src/services/tickets.ts` |
 | Tool Description | The `description` field of each tool in `src/tools/` |
 | "Ask before acting" in the prompt | The approval gate, in code |
 | Manual test chat | `evals/scenarios.json` + `npm run eval:agent`, automated |
@@ -118,7 +121,7 @@ What code adds over the canvas: the approval and booking rules are enforced rath
 
 ```bash
 npm install
-npm test                 # 52 tests, no API key needed
+npm test                 # 60 tests, no API key needed
 npm run eval:retrieval   # knowledge-base search quality
 ```
 
@@ -134,6 +137,24 @@ npm run eval:agent       # the 20 scenarios, end to end
 ```
 
 Bookings, emails and the request log are written to `data/runtime/` (not committed).
+
+## Run it in Docker
+
+```bash
+docker compose up --build   # then open http://localhost:3100
+```
+
+The image carries Node, the dependencies and the embedding model, so the container answers its first question without downloading anything. It runs as a non-root user with all Linux capabilities dropped, and keys come from `.env` at run time, never from the image. CI builds the image on every push, starts it, and checks that it answers.
+
+## Jira tickets and the audit log
+
+Set the four `JIRA_` variables in `.env` and every staff request the customer approves also becomes a Jira issue; the agent gives the customer the ticket number. The request is written to the CSV first, so a Jira outage loses nothing. `src/services/tickets.ts` hides Jira behind a one-method `TicketSystem` interface, so another ticket system is one new class.
+
+Every tool call is appended to `data/runtime/audit.jsonl`: time, tool, read or action, and the outcome, including actions the customer declined. It holds no message text and no customer details.
+
+```json
+{"time":"2026-11-12T18:21:40.000Z","tool":"book_appointment","kind":"action","outcome":"declined"}
+```
 
 ## Tests and evals
 

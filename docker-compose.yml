@@ -1,0 +1,17 @@
+# Runs the agent's browser chat at http://localhost:3100
+# Needs a .env file with ANTHROPIC_API_KEY (copy .env.example). Jira variables are optional.
+services:
+  moked:
+    build: .
+    env_file: .env
+    ports:
+      - "127.0.0.1:3100:3100"
+    volumes:
+      # Bookings, emails and logs outlive the container.
+      - moked-data:/app/data/runtime
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+
+volumes:
+  moked-data:

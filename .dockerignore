@@ -1,0 +1,12 @@
+node_modules
+.git
+.github
+.cache
+.env
+data
+docs
+site
+evals
+tests
+*.md
+.DS_Store

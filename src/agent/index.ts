@@ -12,5 +12,6 @@ export async function startConversation({ approve, services, model }: { approve:
     system: buildSystemPrompt(s.profile, s.clock()),
     approve,
     webSearch: true,
+    onStep: s.audit ? (step) => s.audit!.record(step) : undefined,
   });
 }
